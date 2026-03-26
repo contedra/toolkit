@@ -1,13 +1,19 @@
 # @contedra/astro-loader-firestore
 
-Astro Content Layer loader for [Conteditor](https://github.com/CircleAround/conteditor) Firestore.
+Astro Content Layer loader for Firestore.
 
 Loads content from a Conteditor-managed Firestore collection and exposes it through Astro's Content Layer API (v5+).
 
-## Installation
-
+## Installation                                                                                                          
+                                                                  
+This package is not yet published to npm. Use a git URL or local reference:
+                                                                           
 ```bash
-pnpm add @contedra/astro-loader-firestore
+# Git URL
+pnpm add github:contedra/astro-loader-firestore
+                                               
+# Or local reference (in a pnpm workspace)                                                                               
+# package.json: "@contedra/astro-loader-firestore": "workspace:*"
 ```
 
 ## Usage
