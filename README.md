@@ -47,8 +47,8 @@ The loader reads Conteditor model definition JSON files:
   "id": "blog_posts",
   "modelName": "blog_posts",
   "properties": [
-    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
-    { "propertyName": "content", "dataType": "string", "fieldType": { "element": "markdown" } },
+    { "propertyName": "title", "dataType": "string", "require": true },
+    { "propertyName": "content", "dataType": "string" },
     { "propertyName": "publishedAt", "dataType": "datetime" },
     { "propertyName": "category", "dataType": "relatedOne", "relatedModel": "categories" }
   ]
