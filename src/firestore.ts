@@ -11,7 +11,7 @@ export function initFirestore(config: ContedraLoaderConfig["firebaseConfig"]) {
     initializeApp(
       {
         projectId: config.projectId,
-        credential: cert(config.credential),
+        ...(config.credential ? { credential: cert(config.credential) } : {}),
       },
       appName
     );

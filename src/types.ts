@@ -23,8 +23,8 @@ export interface ContedraLoaderConfig {
   /** Firebase configuration */
   firebaseConfig: {
     projectId: string;
-    /** Path to service account JSON */
-    credential: string;
+    /** Path to service account JSON (uses Application Default Credentials if omitted) */
+    credential?: string;
   };
   /** Firestore collection name (defaults to modelName) */
   collection?: string;
