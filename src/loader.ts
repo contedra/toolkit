@@ -28,10 +28,13 @@ export function contedraLoader(config: ContedraLoaderConfig): Loader {
 
         const parsed = await context.parseData({ id: doc.id, data });
 
+        const rendered = body ? await context.renderMarkdown(body) : undefined;
+
         context.store.set({
           id: doc.id,
           data: parsed,
           body,
+          rendered,
         });
       }
     },
