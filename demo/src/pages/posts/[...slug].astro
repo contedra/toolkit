@@ -1,0 +1,60 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blogPosts");
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+// Resolve tags
+const tagEntries = [];
+if (post.data.tags?.length) {
+  for (const tagId of post.data.tags) {
+    const tag = await getEntry("tags", tagId);
+    if (tag) tagEntries.push(tag);
+  }
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{post.data.title} - Contedra Demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+      .meta { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+      .tag { background: #e8f0fe; color: #1a73e8; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; text-decoration: none; }
+      .back { display: inline-block; margin-bottom: 1rem; color: #1a73e8; }
+      .content { line-height: 1.7; }
+      .content pre { background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+      .content code { font-size: 0.9em; }
+    </style>
+  </head>
+  <body>
+    <a href="/" class="back">&larr; Back to posts</a>
+    <h1>{post.data.title}</h1>
+    <p class="meta">
+      {post.data.publishedAt && new Date(post.data.publishedAt).toLocaleDateString("en-US", {
+        year: "numeric", month: "long", day: "numeric"
+      })}
+    </p>
+    {tagEntries.length > 0 && (
+      <div class="tags">
+        {tagEntries.map((tag) => (
+          <span class="tag">{tag.data.name}</span>
+        ))}
+      </div>
+    )}
+    <div class="content">
+      <Content />
+    </div>
+  </body>
+</html>

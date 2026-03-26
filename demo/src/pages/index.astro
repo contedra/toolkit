@@ -1,0 +1,61 @@
+---
+import { getCollection, getEntry } from "astro:content";
+
+const posts = await getCollection("blogPosts");
+const sortedPosts = posts.sort(
+  (a, b) =>
+    new Date(b.data.publishedAt ?? 0).getTime() -
+    new Date(a.data.publishedAt ?? 0).getTime()
+);
+
+// Resolve tags for each post
+async function getTagNames(tagIds: string[] | undefined): Promise<string[]> {
+  if (!tagIds?.length) return [];
+  const names: string[] = [];
+  for (const id of tagIds) {
+    const tag = await getEntry("tags", id);
+    if (tag) names.push(tag.data.name);
+  }
+  return names;
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blog - Contedra Demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+      .post { margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+      .post h2 a { color: #1a1a2e; text-decoration: none; }
+      .post h2 a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.9rem; }
+      .tags { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+      .tag { background: #e8f0fe; color: #1a73e8; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Blog Posts</h1>
+    <p>Demo of <code>@contedra/astro-loader-firestore</code></p>
+
+    {sortedPosts.map(async (post) => {
+      const tagNames = await getTagNames(post.data.tags);
+      return (
+        <div class="post">
+          <h2><a href={`/posts/${post.id}`}>{post.data.title}</a></h2>
+          <p class="meta">
+            {post.data.publishedAt && new Date(post.data.publishedAt).toLocaleDateString("en-US", {
+              year: "numeric", month: "long", day: "numeric"
+            })}
+          </p>
+          {tagNames.length > 0 && (
+            <div class="tags">
+              {tagNames.map((name) => <span class="tag">{name}</span>)}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </body>
+</html>

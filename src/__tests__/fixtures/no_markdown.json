@@ -1,0 +1,8 @@
+{
+  "id": "categories",
+  "modelName": "categories",
+  "properties": [
+    { "propertyName": "name", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "slug", "dataType": "string", "fieldType": { "element": "input" }, "require": true }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "blog_posts",
+  "modelName": "blog_posts",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "content", "dataType": "string", "fieldType": { "element": "markdown" } },
+    { "propertyName": "publishedAt", "dataType": "datetime", "defaultValue": "${now}" },
+    { "propertyName": "tags", "dataType": "relatedMany", "relatedModel": "tags" }
+  ]
+}

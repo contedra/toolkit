@@ -1,0 +1,46 @@
+{
+  "name": "@contedra/astro-loader-firestore",
+  "version": "0.1.0",
+  "description": "Astro Content Layer loader for Conteditor Firestore",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint src",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "astro",
+    "astro-loader",
+    "firestore",
+    "conteditor",
+    "cms"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "astro": "^5.0.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  },
+  "devDependencies": {
+    "astro": "^5.0.0",
+    "oxlint": "^1.57.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "packageManager": "pnpm@10.32.1"
+}

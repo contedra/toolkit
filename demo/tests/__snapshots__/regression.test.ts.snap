@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Demo site regression > index page matches snapshot 1`] = `
+"<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Blog - Contedra Demo</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:2rem}.post[]{margin-bottom:2rem;border-bottom:1px solid #eee;padding-bottom:1rem}.post[] h2[] a[]{color:#1a1a2e;text-decoration:none}.post[] h2[] a[]:hover{text-decoration:underline}.meta[]{color:#666;font-size:.9rem}.tags[]{display:flex;gap:.5rem;margin-top:.5rem}.tag[]{background:#e8f0fe;color:#1a73e8;padding:.2rem .6rem;border-radius:4px;font-size:.8rem}
+</style></head> <body> <h1>Blog Posts</h1> <p>Demo of <code>@contedra/astro-loader-firestore</code></p> <div class="post"> <h2><a href="/posts/astro-meets-firestore">Astro Meets Firestore: Building a CMS-Powered Blog</a></h2> <p class="meta"> March 10, 2024 </p> <div class="tags"> <span class="tag">Astro</span><span class="tag">Firebase</span> </div> </div><div class="post"> <h2><a href="/posts/firebase-for-content-management">Using Firebase for Content Management</a></h2> <p class="meta"> February 20, 2024 </p> <div class="tags"> <span class="tag">Firebase</span><span class="tag">TypeScript</span> </div> </div><div class="post"> <h2><a href="/posts/getting-started-with-astro">Getting Started with Astro</a></h2> <p class="meta"> January 15, 2024 </p> <div class="tags"> <span class="tag">Astro</span><span class="tag">TypeScript</span> </div> </div> </body></html>"
+`;
+
+exports[`Demo site regression > post: astro-meets-firestore matches snapshot 1`] = `
+"<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Astro Meets Firestore: Building a CMS-Powered Blog - Contedra Demo</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:2rem}.meta[]{color:#666;font-size:.9rem;margin-bottom:1rem}.tags[]{display:flex;gap:.5rem;margin-bottom:2rem}.tag[]{background:#e8f0fe;color:#1a73e8;padding:.2rem .6rem;border-radius:4px;font-size:.8rem;text-decoration:none}.back[]{display:inline-block;margin-bottom:1rem;color:#1a73e8}.content[]{line-height:1.7}.content[] pre[]{background:#f5f5f5;padding:1rem;border-radius:4px;overflow-x:auto}.content[] code[]{font-size:.9em}
+</style></head> <body> <a href="/" class="back">&larr; Back to posts</a> <h1>Astro Meets Firestore: Building a CMS-Powered Blog</h1> <p class="meta"> March 10, 2024 </p> <div class="tags"> <span class="tag">Astro</span><span class="tag">Firebase</span> </div> <div class="content"> <h1 id="astro-meets-firestore">Astro Meets Firestore</h1>
+<p>Combine Astro’s Content Layer API with Firestore for a powerful CMS experience.</p>
+<h2 id="the-stack">The Stack</h2>
+<ul>
+<li><strong>Astro</strong> for the frontend</li>
+<li><strong>Firestore</strong> for the data layer</li>
+<li><strong>@contedra/astro-loader-firestore</strong> to bridge the two</li>
+</ul>
+<p>This loader makes it seamless to use Conteditor-managed content in Astro.</p> </div> </body></html>"
+`;
+
+exports[`Demo site regression > post: firebase-for-content-management matches snapshot 1`] = `
+"<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Using Firebase for Content Management - Contedra Demo</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:2rem}.meta[]{color:#666;font-size:.9rem;margin-bottom:1rem}.tags[]{display:flex;gap:.5rem;margin-bottom:2rem}.tag[]{background:#e8f0fe;color:#1a73e8;padding:.2rem .6rem;border-radius:4px;font-size:.8rem;text-decoration:none}.back[]{display:inline-block;margin-bottom:1rem;color:#1a73e8}.content[]{line-height:1.7}.content[] pre[]{background:#f5f5f5;padding:1rem;border-radius:4px;overflow-x:auto}.content[] code[]{font-size:.9em}
+</style></head> <body> <a href="/" class="back">&larr; Back to posts</a> <h1>Using Firebase for Content Management</h1> <p class="meta"> February 20, 2024 </p> <div class="tags"> <span class="tag">Firebase</span><span class="tag">TypeScript</span> </div> <div class="content"> <h1 id="using-firebase-for-content-management">Using Firebase for Content Management</h1>
+<p>Firebase Firestore is a great choice for managing content with Conteditor.</p>
+<h2 id="benefits">Benefits</h2>
+<ol>
+<li>Real-time updates</li>
+<li>Flexible schema</li>
+<li>Scalable infrastructure</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { getFirestore } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> "firebase-admin/firestore"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> db</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> getFirestore</span><span style="color:#E1E4E8">();</span></span></code></pre> </div> </body></html>"
+`;
+
+exports[`Demo site regression > post: getting-started-with-astro matches snapshot 1`] = `
+"<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Getting Started with Astro - Contedra Demo</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:2rem}.meta[]{color:#666;font-size:.9rem;margin-bottom:1rem}.tags[]{display:flex;gap:.5rem;margin-bottom:2rem}.tag[]{background:#e8f0fe;color:#1a73e8;padding:.2rem .6rem;border-radius:4px;font-size:.8rem;text-decoration:none}.back[]{display:inline-block;margin-bottom:1rem;color:#1a73e8}.content[]{line-height:1.7}.content[] pre[]{background:#f5f5f5;padding:1rem;border-radius:4px;overflow-x:auto}.content[] code[]{font-size:.9em}
+</style></head> <body> <a href="/" class="back">&larr; Back to posts</a> <h1>Getting Started with Astro</h1> <p class="meta"> January 15, 2024 </p> <div class="tags"> <span class="tag">Astro</span><span class="tag">TypeScript</span> </div> <div class="content"> <h1 id="getting-started-with-astro">Getting Started with Astro</h1>
+<p>Astro is a modern web framework for building fast, content-driven websites.</p>
+<h2 id="why-astro">Why Astro?</h2>
+<ul>
+<li><strong>Fast by default</strong> — Zero JS shipped to the browser</li>
+<li><strong>Content-focused</strong> — Built for content-rich websites</li>
+<li><strong>Island architecture</strong> — Interactive components only where needed</li>
+</ul> </div> </body></html>"
+`;
