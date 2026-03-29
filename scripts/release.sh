@@ -8,6 +8,17 @@ if [ -z "$BUMP_TYPE" ]; then
   exit 1
 fi
 
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$current_branch" != "main" ]; then
+  echo "Error: run releases from main (current: $current_branch)"
+  exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Error: working tree must be clean before release"
+  exit 1
+fi
+
 pnpm -r exec npm version "$BUMP_TYPE" --no-git-tag-version
 
 VERSION=$(node -p "require('./packages/core/package.json').version")
