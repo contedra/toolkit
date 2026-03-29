@@ -1,6 +1,6 @@
 {
   "name": "@contedra/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Core library for Contedra toolkit — Firebase connection, model parsing, and schema generation",
   "type": "module",
   "main": "./dist/index.js",

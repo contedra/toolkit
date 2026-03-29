@@ -1,15 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-VERSION=$1
+BUMP_TYPE=$1
 
-if [ -z "$VERSION" ]; then
-  echo "Usage: ./scripts/release.sh <version>"
-  echo "Example: ./scripts/release.sh 0.1.1"
+if [ -z "$BUMP_TYPE" ]; then
+  echo "Usage: ./scripts/release.sh <patch|minor|major>"
   exit 1
 fi
 
-pnpm -r exec npm version "$VERSION" --no-git-tag-version
+pnpm -r exec npm version "$BUMP_TYPE" --no-git-tag-version
+
+VERSION=$(node -p "require('./packages/core/package.json').version")
+
 git add -A
 git commit -m "v$VERSION"
 git tag "v$VERSION"

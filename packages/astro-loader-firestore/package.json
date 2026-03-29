@@ -1,6 +1,6 @@
 {
   "name": "@contedra/astro-loader-firestore",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Astro Content Layer loader for Conteditor Firestore",
   "type": "module",
   "main": "./dist/index.js",

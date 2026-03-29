@@ -221,12 +221,14 @@ pnpm version:major
 Use the release script to bump all packages, commit, tag, push, and create a GitHub release in one step:
 
 ```bash
-./scripts/release.sh 0.1.1
+./scripts/release.sh patch   # 0.1.0 → 0.1.1
+./scripts/release.sh minor   # 0.1.1 → 0.2.0
+./scripts/release.sh major   # 0.2.0 → 1.0.0
 ```
 
 This will:
-1. Set the version in all packages to the specified version
-2. Commit and tag as `v0.1.1`
+1. Bump the version in all packages by the specified type
+2. Commit and tag as `v<new-version>`
 3. Push to `main` with tags
 4. Create a GitHub release with auto-generated notes
 
