@@ -12,7 +12,7 @@ export interface MdImporterConfig {
   /** Mapping from frontmatter keys to model property names */
   fieldMapping?: Record<string, string>;
   /** Directory for resolving absolute image paths (e.g. "./public") */
-  publicDir?: string;
+  imageBaseDir?: string;
   /** Skip all image extraction, upload, and URL replacement */
   noImages?: boolean;
   /** Custom image resolver. Default: reads relative to the .md file */

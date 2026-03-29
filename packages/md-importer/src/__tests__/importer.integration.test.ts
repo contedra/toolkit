@@ -203,7 +203,7 @@ title: Custom Resolve
     await rm(customDir, { recursive: true, force: true });
   });
 
-  it("resolves absolute image paths with publicDir", async () => {
+  it("resolves absolute image paths with imageBaseDir", async () => {
     // Create content dir with md referencing absolute image path
     const absDir = path.join(tmpDir, "_abs_images");
     await mkdir(absDir, { recursive: true });
@@ -218,10 +218,10 @@ title: Absolute Image Post
     );
 
     // Create a public directory with the image
-    const publicDir = path.join(tmpDir, "_public");
-    await mkdir(path.join(publicDir, "images"), { recursive: true });
+    const imageBaseDir = path.join(tmpDir, "_public");
+    await mkdir(path.join(imageBaseDir, "images"), { recursive: true });
     await writeFile(
-      path.join(publicDir, "images", "test.png"),
+      path.join(imageBaseDir, "images", "test.png"),
       Buffer.from("fake-absolute-image-bytes")
     );
 
@@ -230,7 +230,7 @@ title: Absolute Image Post
       modelFile: path.join(FIXTURES, "blog_posts.json"),
       firebaseConfig: { projectId: PROJECT_ID, storageBucket: STORAGE_BUCKET },
       collection: "abs_image_posts",
-      publicDir,
+      imageBaseDir,
     });
 
     expect(result.errors).toEqual([]);
@@ -249,6 +249,6 @@ title: Absolute Image Post
     expect(content).not.toContain("/images/test.png");
 
     await rm(absDir, { recursive: true, force: true });
-    await rm(publicDir, { recursive: true, force: true });
+    await rm(imageBaseDir, { recursive: true, force: true });
   });
 });

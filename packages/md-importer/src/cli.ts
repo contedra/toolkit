@@ -16,7 +16,7 @@ program
   .option("--collection <name>", "Firestore collection name (defaults to modelName)")
   .option("--storage-bucket <name>", "Firebase Storage bucket name (e.g. your-project.firebasestorage.app)")
   .option("--no-images", "Skip image extraction, upload, and URL replacement")
-  .option("--public-dir <path>", "Directory for resolving absolute image paths (e.g. ./public)")
+  .option("--image-base-dir <path>", "Directory for resolving absolute image paths (e.g. ./public)")
   .option(
     "--field-mapping <json>",
     "JSON object mapping frontmatter keys to model property names"
@@ -45,7 +45,7 @@ program
       collection: opts.collection,
       fieldMapping,
       noImages: opts.images === false,
-      publicDir: opts.publicDir,
+      imageBaseDir: opts.imageBaseDir,
     });
 
     console.log(

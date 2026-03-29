@@ -30,7 +30,7 @@ npx @contedra/md-importer \
 | `--collection <name>` | No | Firestore collection name (defaults to `modelName`) |
 | `--storage-bucket <name>` | No* | Firebase Storage bucket name (e.g. `your-project.firebasestorage.app`) |
 | `--no-images` | No | Skip image extraction, upload, and URL replacement |
-| `--public-dir <path>` | No | Directory for resolving absolute image paths (e.g. `./public`) |
+| `--image-base-dir <path>` | No | Directory for resolving absolute image paths (e.g. `./public`) |
 | `--field-mapping <json>` | No | JSON mapping frontmatter keys to model properties |
 
 > \* `--storage-bucket` is required unless `--no-images` is set.

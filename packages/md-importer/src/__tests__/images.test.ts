@@ -103,24 +103,37 @@ describe("defaultResolveImage", () => {
     expect(refs[0].originalPath).toBe("/images/banner.png");
   });
 
-  it("resolves absolute paths using publicDir", async () => {
+  it("resolves absolute paths using imageBaseDir", async () => {
     const { writeFile, mkdir, rm } = await import("node:fs/promises");
     const fixturesDir = path.join(import.meta.dirname, "fixtures");
-    const publicDir = path.join(fixturesDir, "_test_public");
-    await mkdir(path.join(publicDir, "images"), { recursive: true });
+    const imageBaseDir = path.join(fixturesDir, "_test_public");
+    await mkdir(path.join(imageBaseDir, "images"), { recursive: true });
     const testData = Buffer.from("public-dir-image");
-    await writeFile(path.join(publicDir, "images", "banner.png"), testData);
+    await writeFile(path.join(imageBaseDir, "images", "banner.png"), testData);
 
     try {
       const result = await defaultResolveImage(
         "/images/banner.png",
         path.join(fixturesDir, "some-post.md"),
-        publicDir
+        imageBaseDir
       );
       expect(result).toEqual(testData);
     } finally {
-      await rm(publicDir, { recursive: true });
+      await rm(imageBaseDir, { recursive: true });
     }
+  });
+
+  it("rejects path traversal attempts", async () => {
+    const fixturesDir = path.join(import.meta.dirname, "fixtures");
+    const imageBaseDir = path.join(fixturesDir, "_test_public");
+
+    await expect(
+      defaultResolveImage(
+        "/../../etc/passwd",
+        path.join(fixturesDir, "some-post.md"),
+        imageBaseDir
+      )
+    ).rejects.toThrow("Image path escapes base directory");
   });
 
   it("resolves relative to the md file directory", async () => {
