@@ -1,0 +1,49 @@
+{
+  "name": "@contedra/md-importer",
+  "version": "0.1.0",
+  "description": "CLI tool to import YAML-frontmatter Markdown files + images into Firestore using model definition JSON",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "md-importer": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "lint": "oxlint src"
+  },
+  "keywords": [
+    "conteditor",
+    "firestore",
+    "firebase",
+    "markdown",
+    "importer",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@contedra/core": "workspace:*",
+    "commander": "^13.0.0",
+    "firebase-admin": "^13.0.0",
+    "gray-matter": "^4.0.3",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "oxlint": "^1.57.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
