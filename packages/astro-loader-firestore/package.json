@@ -26,8 +26,13 @@
     "conteditor",
     "cms"
   ],
-  "author": "",
+  "author": "Contedra",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/contedra/astro-loader-firestore",
+    "directory": "packages/astro-loader-firestore"
+  },
   "peerDependencies": {
     "astro": "^5.0.0"
   },

@@ -31,8 +31,13 @@
     "importer",
     "cli"
   ],
-  "author": "",
+  "author": "Contedra",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/contedra/astro-loader-firestore",
+    "directory": "packages/md-importer"
+  },
   "dependencies": {
     "@contedra/core": "workspace:*",
     "commander": "^13.0.0",

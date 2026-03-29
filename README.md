@@ -1,24 +1,24 @@
-# @contedra/astro-loader-firestore
+# Contedra Toolkit
 
-Astro Content Layer loader for Firestore.
+Tools for building content-driven sites with [Conteditor](https://github.com/contedra)-managed Firestore and Astro.
 
-Loads content from a Conteditor-managed Firestore collection and exposes it through Astro's Content Layer API (v5+).
+## Packages
 
-## Installation                                                                                                          
-                                                                  
-This package is not yet published to npm. Use a git URL or local reference:
-                                                                           
+| Package | Description |
+|---------|-------------|
+| [`@contedra/core`](./packages/core) | Core library — Firebase connection, model parsing, and Zod schema generation |
+| [`@contedra/astro-loader-firestore`](./packages/astro-loader-firestore) | Astro Content Layer loader for Conteditor Firestore |
+| [`@contedra/md-importer`](./packages/md-importer) | CLI tool to import Markdown files + images into Firestore |
+
+## Quick Start
+
+### Astro Loader
+
 ```bash
-# Git URL
-pnpm add github:contedra/astro-loader-firestore
-                                               
-# Or local reference (in a pnpm workspace)                                                                               
-# package.json: "@contedra/astro-loader-firestore": "workspace:*"
+pnpm add @contedra/astro-loader-firestore
 ```
 
-## Usage
-
-### 1. Define your content collection
+Define a content collection in your Astro project:
 
 ```typescript
 // src/content/config.ts
@@ -38,24 +38,7 @@ const blogPosts = defineCollection({
 export const collections = { blogPosts };
 ```
 
-### 2. Model JSON format
-
-The loader reads Conteditor model definition JSON files:
-
-```json
-{
-  "id": "blog_posts",
-  "modelName": "blog_posts",
-  "properties": [
-    { "propertyName": "title", "dataType": "string", "require": true },
-    { "propertyName": "content", "dataType": "string" },
-    { "propertyName": "publishedAt", "dataType": "datetime" },
-    { "propertyName": "category", "dataType": "relatedOne", "relatedModel": "categories" }
-  ]
-}
-```
-
-### 3. Options
+#### Options
 
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
@@ -65,7 +48,7 @@ The loader reads Conteditor model definition JSON files:
 | `collection` | `string` | No | Firestore collection name (defaults to `modelName`) |
 | `bodyField` | `string` | No | Field to map to Astro's `body` (auto-detects `element: "markdown"` fields) |
 
-### 4. Data type mapping
+#### Data Type Mapping
 
 | Conteditor `dataType` | Zod Schema | Description |
 |------------------------|------------|-------------|
@@ -74,32 +57,10 @@ The loader reads Conteditor model definition JSON files:
 | `relatedOne` | `z.string()` | Referenced document ID |
 | `relatedMany` | `z.array(z.string())` | Array of referenced document IDs |
 
-### 5. Resolving references
-
-The loader maps `relatedOne` and `relatedMany` fields to document ID strings. To resolve them, use `getEntry()` from `astro:content`:
-
-```typescript
----
-import { getCollection, getEntry } from "astro:content";
-
-const posts = await getCollection("blogPosts");
-
-// Resolve a relatedMany field (tags)
-for (const post of posts) {
-  const tags = [];
-  for (const tagId of post.data.tags ?? []) {
-    const tag = await getEntry("tags", tagId);
-    if (tag) tags.push(tag);
-  }
-}
----
-```
-
-> **Note:** Astro's `reference()` helper cannot be used in custom loader schemas because the Loader `schema` function does not receive a schema context that includes `reference()`. Use manual resolution with `getEntry()` instead.
-
-### 6. Authentication
+#### Authentication
 
 **With `credential` option** (local development):
+
 ```typescript
 firebaseConfig: {
   projectId: "your-project-id",
@@ -108,6 +69,7 @@ firebaseConfig: {
 ```
 
 **Without `credential`** (Application Default Credentials):
+
 ```typescript
 firebaseConfig: {
   projectId: "your-project-id",
@@ -116,48 +78,154 @@ firebaseConfig: {
 
 When `credential` is omitted, the loader uses [Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication/application-default-credentials). Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable or use Workload Identity Federation in CI/CD environments.
 
+### Markdown Importer
+
+```bash
+pnpm add @contedra/md-importer
+```
+
+#### CLI Usage
+
+```bash
+npx @contedra/md-importer \
+  --md-dir ./content \
+  --model ./models/blog_posts.json \
+  --project-id your-project-id \
+  --credential ./service-account.json
+```
+
+**CLI Options:**
+
+| Option | Required | Description |
+|--------|----------|-------------|
+| `--md-dir <path>` | Yes | Directory containing `.md` files |
+| `--model <path>` | Yes | Path to model definition JSON |
+| `--project-id <id>` | Yes | Firebase project ID |
+| `--credential <path>` | No | Path to service account JSON (uses ADC if omitted) |
+| `--collection <name>` | No | Firestore collection name (defaults to `modelName`) |
+| `--field-mapping <json>` | No | JSON mapping frontmatter keys to model properties |
+
+**Example with field mapping:**
+
+```bash
+npx @contedra/md-importer \
+  --md-dir ./content \
+  --model ./models/blog_posts.json \
+  --project-id your-project-id \
+  --field-mapping '{"article_title":"title","article_date":"publishedAt"}'
+```
+
+#### Programmatic API
+
+```typescript
+import { mdImporter } from "@contedra/md-importer";
+
+const result = await mdImporter({
+  mdDir: "./content",
+  modelFile: "./models/blog_posts.json",
+  firebaseConfig: {
+    projectId: "your-project-id",
+    credential: "./service-account.json",
+  },
+  fieldMapping: {
+    article_title: "title",
+    article_date: "publishedAt",
+  },
+});
+
+console.log(`Imported: ${result.imported.length}`);
+console.log(`Errors: ${result.errors.length}`);
+```
+
+#### Custom Image Resolver
+
+By default, images referenced in markdown are read from the local filesystem relative to the `.md` file and uploaded to Firebase Storage. You can provide a custom resolver:
+
+```typescript
+const result = await mdImporter({
+  mdDir: "./content",
+  modelFile: "./models/blog_posts.json",
+  firebaseConfig: { projectId: "your-project-id" },
+  resolveImage: async (imagePath, mdFilePath) => {
+    // Custom logic — e.g., fetch from a remote URL or CDN
+    const response = await fetch(`https://cdn.example.com/${imagePath}`);
+    return Buffer.from(await response.arrayBuffer());
+  },
+});
+```
+
+## Model JSON Format
+
+Both the Astro loader and Markdown importer use Conteditor model definition JSON files to define the schema of your content:
+
+```json
+{
+  "id": "blog_posts",
+  "modelName": "blog_posts",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "require": true },
+    { "propertyName": "content", "dataType": "string", "fieldType": { "element": "markdown" } },
+    { "propertyName": "publishedAt", "dataType": "datetime" },
+    { "propertyName": "category", "dataType": "relatedOne", "relatedModel": "categories" },
+    { "propertyName": "tags", "dataType": "relatedMany", "relatedModel": "tags" }
+  ]
+}
+```
+
+**Supported `dataType` values:** `string`, `datetime`, `relatedOne`, `relatedMany`
+
+A property with `"fieldType": { "element": "markdown" }` is automatically detected as the body field for Astro's content rendering.
+
 ## Demo
 
-A demo Astro project is included in the `demo/` directory. It uses the Firestore emulator with sample blog posts and tags.
+A demo Astro project is included in the [`demo/`](./demo) directory. It uses the Firestore emulator with sample blog posts and tags. See [demo/README.md](./demo/README.md) for setup instructions.
 
-### Prerequisites
-
-- [Firebase CLI](https://firebase.google.com/docs/cli) with the Firestore emulator
-
-### Running the demo
+## Development
 
 ```bash
-# Start the Firestore emulator
-cd demo
-pnpm emulator
+# Install dependencies
+pnpm install
 
-# In another terminal:
-cd demo
-pnpm seed       # Seeds the emulator with sample data
-pnpm dev        # Starts the Astro dev server
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm test
+
+# Lint
+pnpm lint
 ```
 
-Set `FIRESTORE_EMULATOR_HOST=localhost:8080` to point the loader at the emulator.
+## Versioning
 
-### Regression tests
-
-The demo includes snapshot tests that verify the built HTML output against stored snapshots. This detects regressions in markdown rendering, tag resolution, datetime formatting, etc.
+All packages share the same version number. Use the built-in scripts to bump versions:
 
 ```bash
-# With the Firestore emulator running:
-cd demo
-pnpm test:regression    # seed → build → snapshot test
+# Bump patch version (e.g., 0.1.0 → 0.1.1)
+pnpm version:patch
 
-# Or if dist/ is already built:
-pnpm test               # run snapshot tests only
+# Bump minor version (e.g., 0.1.0 → 0.2.0)
+pnpm version:minor
+
+# Bump major version (e.g., 0.1.0 → 1.0.0)
+pnpm version:major
 ```
 
-To update snapshots after intentional changes:
+After bumping, commit and tag:
 
 ```bash
-cd demo
-pnpm test -- --update
+pnpm version:patch   # outputs "v0.1.1"
+git add -A && git commit -m "chore: bump to v0.1.1"
+git tag v0.1.1 && git push origin main --tags
 ```
+
+Pushing the tag triggers the [publish workflow](./.github/workflows/publish.yml), which builds and publishes all packages to npm.
+
+## Publishing
+
+Packages are published to npm under the `@contedra` scope via GitHub Actions. Pushing a version tag (e.g., `v0.1.1`) triggers the [publish workflow](./.github/workflows/publish.yml), which builds and publishes all packages.
+
+**Requirements:** Set the `NPM_TOKEN` secret in your GitHub repository settings.
 
 ## License
 
