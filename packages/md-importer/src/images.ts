@@ -46,10 +46,17 @@ export async function defaultResolveImage(
   mdFilePath: string,
   imageBaseDir?: string
 ): Promise<Buffer> {
-  if (imagePath.startsWith("/") && imageBaseDir) {
-    const resolved = path.resolve(imageBaseDir, imagePath.slice(1));
+  if (path.isAbsolute(imagePath)) {
+    if (!imageBaseDir) {
+      throw new Error(
+        `Absolute image path requires imageBaseDir: ${imagePath}`
+      );
+    }
+
     const base = path.resolve(imageBaseDir);
-    if (!resolved.startsWith(base)) {
+    const resolved = path.resolve(base, imagePath.slice(1));
+    const rel = path.relative(base, resolved);
+    if (rel.startsWith("..") || path.isAbsolute(rel)) {
       throw new Error(`Image path escapes base directory: ${imagePath}`);
     }
     return readFile(resolved);

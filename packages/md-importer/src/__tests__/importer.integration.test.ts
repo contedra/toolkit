@@ -2,6 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import path from "node:path";
 import { writeFile, mkdir, rm } from "node:fs/promises";
 import { initFirestore } from "@contedra/core";
+import { getStorage } from "firebase-admin/storage";
+import { getApps } from "firebase-admin/app";
 import { mdImporter } from "../importer.js";
 
 const FIXTURES = path.join(import.meta.dirname, "fixtures");
@@ -96,6 +98,15 @@ Second post body.
     expect(content).toContain("First post content.");
     expect(content).toContain("asset://blog_posts/hello-world/hero.png");
     expect(content).not.toContain("./images/hero.png");
+
+    // Verify image was uploaded to Storage
+    const appName = `contedra-${PROJECT_ID}`;
+    const app = getApps().find((a) => a.name === appName)!;
+    const bucket = getStorage(app).bucket();
+    const [exists] = await bucket
+      .file("assets/blog_posts/hello-world/hero.png")
+      .exists();
+    expect(exists).toBe(true);
 
     // Verify second post
     const secondDoc = await firestore
@@ -247,6 +258,15 @@ title: Absolute Image Post
     const content = doc.data()!["content"] as string;
     expect(content).toContain("asset://blog_posts/abs-post/test.png");
     expect(content).not.toContain("/images/test.png");
+
+    // Verify image was uploaded to Storage
+    const appName = `contedra-${PROJECT_ID}`;
+    const app = getApps().find((a) => a.name === appName)!;
+    const bucket = getStorage(app).bucket();
+    const [exists] = await bucket
+      .file("assets/blog_posts/abs-post/test.png")
+      .exists();
+    expect(exists).toBe(true);
 
     await rm(absDir, { recursive: true, force: true });
     await rm(imageBaseDir, { recursive: true, force: true });

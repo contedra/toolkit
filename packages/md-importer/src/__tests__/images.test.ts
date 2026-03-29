@@ -123,6 +123,17 @@ describe("defaultResolveImage", () => {
     }
   });
 
+  it("rejects absolute paths when imageBaseDir is not set", async () => {
+    const fixturesDir = path.join(import.meta.dirname, "fixtures");
+
+    await expect(
+      defaultResolveImage(
+        "/images/banner.png",
+        path.join(fixturesDir, "some-post.md")
+      )
+    ).rejects.toThrow("Absolute image path requires imageBaseDir");
+  });
+
   it("rejects path traversal attempts", async () => {
     const fixturesDir = path.join(import.meta.dirname, "fixtures");
     const imageBaseDir = path.join(fixturesDir, "_test_public");
