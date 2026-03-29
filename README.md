@@ -26,17 +26,28 @@ pnpm test
 pnpm lint
 ```
 
+## Versioning
+
+All packages share the same version number. Use the built-in scripts to bump versions across all packages at once:
+
+```bash
+pnpm version:patch   # 0.1.0 → 0.1.1
+pnpm version:minor   # 0.1.0 → 0.2.0
+pnpm version:major   # 0.1.0 → 1.0.0
+```
+
+The script outputs the new version (e.g., `v0.1.1`) for easy tagging. Full workflow:
+
+```bash
+pnpm version:patch   # outputs "v0.1.1"
+git add -A && git commit -m "chore: bump to v0.1.1"
+git tag v0.1.1 && git push origin main --tags
+```
+
 ## Publishing
 
 Packages are published to npm under the `@contedra` scope via GitHub Actions.
-To publish, push a version tag:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-This triggers the [publish workflow](./.github/workflows/publish.yml), which builds and publishes all packages.
+Pushing a version tag (e.g., `v0.1.1`) triggers the [publish workflow](./.github/workflows/publish.yml), which builds and publishes all packages.
 
 ## Demo
 
