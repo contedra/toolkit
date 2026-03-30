@@ -6,6 +6,6 @@
     }
   },
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules.emulator"
   }
 }
