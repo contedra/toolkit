@@ -41,7 +41,7 @@ export function contedraLoader(config: ContedraLoaderConfig): Loader {
 
       // Build asset replacer if configured
       const replacer = config.assets
-        ? await buildReplacer(config, collectionName, transformed, context.logger)
+        ? await buildReplacer(config, transformed, context.logger)
         : undefined;
 
       context.store.clear();
@@ -79,7 +79,6 @@ export function contedraLoader(config: ContedraLoaderConfig): Loader {
 
 async function buildReplacer(
   config: ContedraLoaderConfig,
-  collectionName: string,
   documents: Array<{ data: Record<string, unknown>; body?: string }>,
   logger: AstroLogger
 ): Promise<(uri: string) => string> {
@@ -98,10 +97,10 @@ async function buildReplacer(
     return (uri) => resolveAssetUriToUrl(uri, storageBucket);
   }
 
-  // Download mode: namespace defaults by collection to isolate loader instances
-  const cacheDir = assets.cacheDir ?? `./.asset-cache/${collectionName}`;
-  const outputDir = assets.outputDir ?? `./public/assets/${collectionName}`;
-  const publicPath = (assets.publicPath ?? `/assets/${collectionName}`).replace(/\/$/, "");
+  // Download mode
+  const cacheDir = assets.cacheDir ?? "./.asset-cache";
+  const outputDir = assets.outputDir ?? "./public/assets";
+  const publicPath = (assets.publicPath ?? "/assets").replace(/\/$/, "");
 
   // Collect all unique asset URIs
   const allUris = new Set<string>();

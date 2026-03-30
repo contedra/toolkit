@@ -3,11 +3,11 @@ import type { FirebaseConfig } from "@contedra/core";
 export interface AssetOptions {
   /** Resolution mode: "url" converts to public URLs, "download" fetches files locally */
   mode?: "download" | "url";
-  /** Directory to save downloaded assets (default: "./.asset-cache/{collection}") */
+  /** Directory to save downloaded assets (default: "./.asset-cache") */
   cacheDir?: string;
-  /** Directory to copy assets for serving (default: "./public/assets/{collection}") */
+  /** Directory to copy assets for serving (default: "./public/assets") */
   outputDir?: string;
-  /** URL path prefix for resolved assets (default: "/assets/{collection}") */
+  /** URL path prefix for resolved assets (default: "/assets") */
   publicPath?: string;
 }
 
