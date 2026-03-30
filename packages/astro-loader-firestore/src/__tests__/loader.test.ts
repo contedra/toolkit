@@ -242,11 +242,10 @@ describe("contedraLoader with assets (download mode)", () => {
     await loader.load(ctx as any);
 
     const setCall = ctx.store.set.mock.calls[0][0];
-    // Default publicPath is /assets/{collection}, collection defaults to modelName "blog_posts"
     expect(setCall.data.thumbnail).toBe(
-      "/assets/blog_posts/blog_posts/post-1/thumb.jpg"
+      "/assets/blog_posts/post-1/thumb.jpg"
     );
-    expect(setCall.body).toContain("/assets/blog_posts/blog_posts/post-1/photo.png");
+    expect(setCall.body).toContain("/assets/blog_posts/post-1/photo.png");
     expect(setCall.body).not.toContain("asset://");
   });
 

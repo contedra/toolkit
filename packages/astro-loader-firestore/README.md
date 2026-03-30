@@ -79,10 +79,10 @@ const blogPosts = defineCollection({
     },
     assets: {
       mode: "download",
-      // All options below are optional (defaults use collection name):
-      cacheDir: "./.asset-cache/blog_posts",   // default: ./.asset-cache/{collection}
-      outputDir: "./public/assets/blog_posts", // default: ./public/assets/{collection}
-      publicPath: "/assets/blog_posts",        // default: /assets/{collection}
+      // All options below are optional:
+      cacheDir: "./.asset-cache",   // default
+      outputDir: "./public/assets", // default
+      publicPath: "/assets",        // default
     },
   }),
 });
@@ -93,9 +93,9 @@ const blogPosts = defineCollection({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `mode` | `"url" \| "download"` | `"url"` | Resolution mode |
-| `cacheDir` | `string` | `"./.asset-cache/{collection}"` | Local cache directory (download mode) |
-| `outputDir` | `string` | `"./public/assets/{collection}"` | Output directory for serving (download mode) |
-| `publicPath` | `string` | `"/assets/{collection}"` | URL prefix for resolved assets (download mode) |
+| `cacheDir` | `string` | `"./.asset-cache"` | Local cache directory (download mode) |
+| `outputDir` | `string` | `"./public/assets"` | Output directory for serving (download mode) |
+| `publicPath` | `string` | `"/assets"` | URL prefix for resolved assets (download mode) |
 
 ### CI Cache (GitHub Actions)
 
