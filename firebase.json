@@ -1,8 +1,7 @@
 {
   "emulators": {
     "storage": {
-      "port": 9299,
-      "host": "localhost"
+      "port": 9299
     }
   },
   "storage": {
