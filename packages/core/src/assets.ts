@@ -28,7 +28,9 @@ function sanitizeAssetPath(assetPath: string): string | null {
   if (assetPath.startsWith("/") || assetPath.startsWith("\\")) return null;
   if (/^[A-Za-z]:/.test(assetPath)) return null;
 
-  // Normalize and reject traversal
+  // Reject any path containing ".." segments (before and after normalization)
+  if (assetPath.split("/").includes("..")) return null;
+
   const normalized = path.posix.normalize(assetPath).replace(/^(\.\/)+/, "");
   if (
     normalized === "" ||
@@ -48,7 +50,17 @@ function sanitizeAssetPath(assetPath: string): string | null {
  */
 export function parseAssetUri(uri: string): string | null {
   if (!uri.startsWith("asset://")) return null;
-  const assetPath = uri.slice("asset://".length);
+  const rawPath = uri.slice("asset://".length);
+  // Decode percent-encoded characters to get canonical filesystem path
+  let assetPath: string;
+  try {
+    assetPath = rawPath
+      .split("/")
+      .map((segment) => decodeURIComponent(segment))
+      .join("/");
+  } catch {
+    return null;
+  }
   return sanitizeAssetPath(assetPath);
 }
 

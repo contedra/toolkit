@@ -41,6 +41,19 @@ describe("parseAssetUri", () => {
   it("should normalize safe paths with dot segments", () => {
     expect(parseAssetUri("asset://posts/./file.png")).toBe("posts/file.png");
   });
+
+  it("should decode percent-encoded characters", () => {
+    expect(parseAssetUri("asset://posts/p1/my%20image.png")).toBe(
+      "posts/p1/my image.png"
+    );
+    expect(parseAssetUri("asset://posts/p1/%E6%97%A5%E6%9C%AC%E8%AA%9E.png")).toBe(
+      "posts/p1/\u65E5\u672C\u8A9E.png"
+    );
+  });
+
+  it("should reject percent-encoded traversal", () => {
+    expect(parseAssetUri("asset://posts/%2e%2e/secret")).toBeNull();
+  });
 });
 
 describe("buildStorageUrl", () => {
