@@ -1,12 +1,12 @@
-import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import type { FirebaseConfig, ModelDefinition } from "./types.js";
 
-export function initFirestore(config: FirebaseConfig) {
+export function initFirebase(config: FirebaseConfig): App {
   const appName = `contedra-${config.projectId}`;
   const existingApp = getApps().find((app) => app.name === appName);
 
-  const app =
+  return (
     existingApp ??
     initializeApp(
       {
@@ -17,8 +17,12 @@ export function initFirestore(config: FirebaseConfig) {
           : {}),
       },
       appName
-    );
+    )
+  );
+}
 
+export function initFirestore(config: FirebaseConfig) {
+  const app = initFirebase(config);
   return getFirestore(app);
 }
 
