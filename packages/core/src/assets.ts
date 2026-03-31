@@ -162,18 +162,26 @@ export async function downloadAsset(
   const file = bucket.file(storagePath);
 
   if (existsSync(cachePath)) {
-    const localMd5 = createHash("md5").update(readFileSync(cachePath)).digest("base64");
+    let localMd5: string;
     try {
-      const [metadata] = await file.getMetadata();
-      if (!metadata.md5Hash) {
-        return false;
-      }
-      if (localMd5 === metadata.md5Hash) {
-        return false;
-      }
+      localMd5 = createHash("md5")
+        .update(readFileSync(cachePath))
+        .digest("base64");
     } catch {
-      // If metadata fetch fails, reuse cached file rather than failing the build
-      return false;
+      // Corrupt or unreadable cache entry: fall through to re-download
+      localMd5 = "";
+    }
+
+    if (localMd5) {
+      try {
+        const [metadata] = await file.getMetadata();
+        if (!metadata.md5Hash || localMd5 === metadata.md5Hash) {
+          return false;
+        }
+      } catch {
+        // If metadata fetch fails, reuse cached file rather than failing the build
+        return false;
+      }
     }
   }
 

@@ -120,6 +120,23 @@ describe("downloadAsset (md5 cache verification)", () => {
     expect(readFileSync(cachedPath)).toEqual(content);
   });
 
+  it("should re-download when cached file is unreadable", async () => {
+    // Create a directory where a file is expected, making readFileSync fail
+    const cachedPath = path.join(cacheDir, "model/doc/image.png");
+    mkdirSync(cachedPath, { recursive: true });
+
+    const newContent = Buffer.from("fresh-download");
+    mockDownload.mockResolvedValue([newContent]);
+
+    // readFileSync throws EISDIR, localMd5 becomes empty, falls through to download.
+    // writeFile also throws EISDIR since cachePath is a directory,
+    // so the function propagates the error (expected for truly broken cache entries).
+    await expect(
+      downloadAsset(fakeApp, "model/doc/image.png", cacheDir)
+    ).rejects.toThrow();
+    expect(mockDownload).toHaveBeenCalledOnce();
+  });
+
   it("should not create additional metadata files in cache directory", async () => {
     const content = Buffer.from("file-content");
     mockDownload.mockResolvedValue([content]);
