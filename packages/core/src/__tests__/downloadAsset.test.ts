@@ -90,6 +90,20 @@ describe("downloadAsset (md5 cache verification)", () => {
     expect(cached).toEqual(newContent);
   });
 
+  it("should reuse cached file when metadata has no md5Hash", async () => {
+    const content = Buffer.from("cached-content");
+    const cachedPath = path.join(cacheDir, "model/doc/image.png");
+    mkdirSync(path.dirname(cachedPath), { recursive: true });
+    writeFileSync(cachedPath, content);
+
+    mockGetMetadata.mockResolvedValue([{ md5Hash: undefined }]);
+
+    const result = await downloadAsset(fakeApp, "model/doc/image.png", cacheDir);
+
+    expect(result).toBe(false);
+    expect(mockDownload).not.toHaveBeenCalled();
+  });
+
   it("should reuse cached file when getMetadata fails", async () => {
     const content = Buffer.from("cached-content");
     const cachedPath = path.join(cacheDir, "model/doc/image.png");
