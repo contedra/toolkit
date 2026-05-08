@@ -181,6 +181,8 @@ Both the Astro loader and Markdown importer use content model definition JSON fi
 
 A property with `"fieldType": { "element": "markdown" }` is automatically detected as the body field for Astro's content rendering.
 
+[Conteditor](https://github.com/CircleAround/conteditor) is a reference Headless CMS that produces content-model JSON files in this format.
+
 ## Demo
 
 A demo Astro project is included in the [`demo/`](./demo) directory. It uses the Firestore emulator with sample blog posts and tags. See [demo/README.md](./demo/README.md) for setup instructions.
