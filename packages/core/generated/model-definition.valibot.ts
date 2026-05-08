@@ -15,7 +15,7 @@ import {
   regex,
   strictObject,
   string,
-  union,
+  variant,
 } from "valibot";
 
 export const ModelIdSchema = pipe(string(), nonEmpty(), maxLength(128), regex(/^[a-zA-Z0-9_-]+$/));
@@ -57,7 +57,7 @@ export const RelatedManyPropertySchema = strictObject({
   require: optional(boolean()),
   defaultValue: optional(string()),
 });
-export const ModelPropertySchema = union([StringPropertySchema, DatetimePropertySchema, RelatedOnePropertySchema, RelatedManyPropertySchema]);
+export const ModelPropertySchema = variant("dataType", [StringPropertySchema, DatetimePropertySchema, RelatedOnePropertySchema, RelatedManyPropertySchema]);
 export const ModelDefinitionSchema = strictObject({
   id: ModelIdSchema,
   modelName: ModelNameSchema,

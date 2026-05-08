@@ -50,12 +50,10 @@ function emit(node, used) {
     return `picklist([${node.enum.map((v) => JSON.stringify(v)).join(", ")}])`;
   }
   if (node.oneOf !== undefined) {
-    used.add("union");
-    return `union([${node.oneOf.map((c) => emit(c, used)).join(", ")}])`;
+    return emitObjectUnion(node.oneOf, used);
   }
   if (node.anyOf !== undefined) {
-    used.add("union");
-    return `union([${node.anyOf.map((c) => emit(c, used)).join(", ")}])`;
+    return emitObjectUnion(node.anyOf, used);
   }
   if (node.type === "string") return emitString(node, used);
   if (node.type === "boolean") {
@@ -83,6 +81,78 @@ function emit(node, used) {
   throw new Error(
     `Unsupported schema node: ${JSON.stringify(node).slice(0, 200)}`
   );
+}
+
+/**
+ * If every branch of a oneOf/anyOf is an object (directly or via $ref to a
+ * $defs object) and they all use the same `const`-valued discriminator key,
+ * emit `variant('<key>', [...])` for sharper error messages. Otherwise fall
+ * back to a plain `union([...])`.
+ */
+function emitObjectUnion(branches, used) {
+  const discriminator = findDiscriminator(branches);
+  if (discriminator) {
+    used.add("variant");
+    const parts = branches.map((c) => emit(c, used));
+    return `variant(${JSON.stringify(discriminator)}, [${parts.join(", ")}])`;
+  }
+  used.add("union");
+  const parts = branches.map((c) => emit(c, used));
+  return `union([${parts.join(", ")}])`;
+}
+
+function findDiscriminator(branches) {
+  if (!Array.isArray(branches) || branches.length === 0) return null;
+  const candidateKeys = collectConstKeys(resolveBranch(branches[0]));
+  if (candidateKeys.size === 0) return null;
+  for (let i = 1; i < branches.length; i++) {
+    const next = collectConstKeys(resolveBranch(branches[i]));
+    for (const key of [...candidateKeys]) {
+      if (!next.has(key)) candidateKeys.delete(key);
+    }
+    if (candidateKeys.size === 0) return null;
+  }
+  return [...candidateKeys][0];
+}
+
+function collectConstKeys(node) {
+  const keys = new Set();
+  if (!node || typeof node !== "object" || node.type !== "object") return keys;
+  const props = node.properties ?? {};
+  const required = new Set(node.required ?? []);
+  for (const [key, value] of Object.entries(props)) {
+    if (
+      required.has(key) &&
+      value &&
+      typeof value === "object" &&
+      value.const !== undefined
+    ) {
+      keys.add(key);
+    }
+  }
+  return keys;
+}
+
+let resolveBranchSchema = null;
+
+function resolveBranch(node) {
+  if (!node || typeof node !== "object") return node;
+  if (node.$ref && resolveBranchSchema) {
+    return resolveLocalRef(node.$ref) ?? node;
+  }
+  return node;
+}
+
+function resolveLocalRef(ref) {
+  if (!resolveBranchSchema) return null;
+  if (!ref.startsWith("#/")) return null;
+  const segments = ref.slice(2).split("/");
+  let node = resolveBranchSchema;
+  for (const seg of segments) {
+    if (!node || typeof node !== "object") return null;
+    node = node[seg];
+  }
+  return node && typeof node === "object" ? node : null;
 }
 
 function emitRef(ref) {
@@ -188,6 +258,8 @@ function collectRefs(node, out = new Set()) {
 async function main() {
   const text = await readFile(SCHEMA_PATH, "utf-8");
   const schema = JSON.parse(text);
+
+  resolveBranchSchema = schema;
 
   const used = new Set();
   const defs = schema.$defs ?? {};
