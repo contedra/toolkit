@@ -39,6 +39,15 @@ describe("JSON Schemas — ship layout", () => {
     expect(man.$id).toMatch(pattern);
   });
 
+  it("manifest references the definition schema by jsdelivr URL (single source of truth)", () => {
+    const man = readJson(resolve(schemasDir, "model-manifest.schema.json")) as {
+      properties: { models: { items: { $ref: string } } };
+    };
+    expect(man.properties.models.items.$ref).toMatch(
+      /^https:\/\/cdn\.jsdelivr\.net\/npm\/@contedra\/core@[^/]+\/schemas\/model-definition\.schema\.json$/
+    );
+  });
+
   it("$id placeholder gets rewritten to the package version after running the release script", () => {
     // The on-disk schemas are kept with a 0.0.0-PLACEHOLDER tag in source so
     // PRs do not have to bump the URL. The release-time rewrite script
@@ -64,6 +73,10 @@ describe("JSON Schemas — ajv validation", () => {
   const manifestSchema = readJson(
     resolve(schemasDir, "model-manifest.schema.json")
   );
+  // The manifest schema $refs the definition schema by its $id URL.
+  // Register the definition schema first so ajv can resolve that $ref
+  // without a network fetch.
+  ajv.addSchema(definitionSchema);
   const validateDefinition = ajv.compile(definitionSchema);
   const validateManifest = ajv.compile(manifestSchema);
 
@@ -74,6 +87,21 @@ describe("JSON Schemas — ajv validation", () => {
 
   it("accepts a valid ModelManifest fixture", () => {
     const data = readJson(resolve(fixturesDir, "manifest_multi.json"));
+    expect(validateManifest(data)).toBe(true);
+  });
+
+  it("accepts a single-entry ModelManifest fixture", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_single.json"));
+    expect(validateManifest(data)).toBe(true);
+  });
+
+  it("accepts a manifest with duplicate entries (uniqueness is a runtime concern)", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_duplicate.json"));
+    expect(validateManifest(data)).toBe(true);
+  });
+
+  it("accepts an empty manifest at the schema level (emptiness is a runtime concern)", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_empty.json"));
     expect(validateManifest(data)).toBe(true);
   });
 
@@ -92,9 +120,23 @@ describe("JSON Schemas — ajv validation", () => {
     expect(validateManifest(data)).toBe(false);
   });
 
-  it("rejects entries missing required fields", () => {
+  it("rejects manifest entries missing required fields (validated through the $ref)", () => {
     const broken = {
       models: [{ id: "x", modelName: "x" }],
+    };
+    expect(validateManifest(broken)).toBe(false);
+  });
+
+  it("rejects manifest entries whose nested properties violate the definition schema", () => {
+    // Exercises the full $ref chain: ModelManifest -> ModelDefinition -> ModelProperty.
+    const broken = {
+      models: [
+        {
+          id: "x",
+          modelName: "x",
+          properties: [{ propertyName: "title", dataType: "wat" }],
+        },
+      ],
     };
     expect(validateManifest(broken)).toBe(false);
   });

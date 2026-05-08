@@ -100,6 +100,8 @@ The package ships JSON Schemas (Draft 2020-12) for validating model files in edi
 
 They are exposed through both `package.json` `exports` (Node-side `import`) and the npm tarball. **jsdelivr** automatically serves any file inside an npm package, so no separate hosting is needed.
 
+`model-manifest.schema.json` keeps its `models[]` shape in sync with `model-definition.schema.json` by referencing it through a top-level `$ref` (the same version-pinned jsdelivr URL pattern as `$id`), so the `ModelDefinition` shape lives in exactly one place.
+
 ### URL convention — version-pinned `$id` / `$schema`
 
 Each released schema file's `$id` is the version-pinned jsdelivr URL of the same release, for example:

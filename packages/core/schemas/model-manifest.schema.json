@@ -2,7 +2,7 @@
   "$id": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ModelManifest",
-  "description": "Wrapper format that bundles multiple Conteditor model definitions in one file.",
+  "description": "Wrapper format that bundles multiple Conteditor model definitions in one file. Each entry under `models` references the `ModelDefinition` schema by `$ref` so the shape stays defined in exactly one place.",
   "type": "object",
   "required": ["models"],
   "additionalProperties": true,
@@ -10,61 +10,7 @@
     "models": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/ModelDefinition"
-      }
-    }
-  },
-  "$defs": {
-    "ModelDefinition": {
-      "type": "object",
-      "required": ["id", "modelName", "properties"],
-      "additionalProperties": true,
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "modelName": {
-          "type": "string",
-          "minLength": 1
-        },
-        "properties": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/ModelProperty"
-          }
-        }
-      }
-    },
-    "ModelProperty": {
-      "type": "object",
-      "required": ["propertyName", "dataType"],
-      "additionalProperties": true,
-      "properties": {
-        "propertyName": {
-          "type": "string",
-          "minLength": 1
-        },
-        "dataType": {
-          "type": "string",
-          "enum": ["string", "datetime", "relatedOne", "relatedMany"]
-        },
-        "fieldType": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "element": {
-              "type": "string"
-            }
-          }
-        },
-        "require": {
-          "type": "boolean"
-        },
-        "defaultValue": {},
-        "relatedModel": {
-          "type": "string"
-        }
+        "$ref": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-definition.schema.json"
       }
     }
   }
