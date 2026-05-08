@@ -209,9 +209,9 @@ describe("JSON Schemas — ajv validation", () => {
     expect(validateDefinition(broken)).toBe(false);
   });
 
-  it("accepts the corporate-website golden manifest", () => {
+  it("accepts the full-coverage golden manifest", () => {
     const data = readJson(
-      resolve(fixturesDir, "golden_corporate_website.json")
+      resolve(fixturesDir, "golden_full_example.json")
     );
     expect(validateManifest(data)).toBe(true);
   });

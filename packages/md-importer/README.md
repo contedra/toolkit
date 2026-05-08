@@ -35,14 +35,14 @@ npx @contedra/md-importer \
 | `--image-fields <fields>` | No | Comma-separated frontmatter field names containing image paths (e.g. `heroImage,cover`) |
 | `--field-mapping <json>` | No | JSON mapping frontmatter keys to model properties |
 
-### Importing from a Conteditor manifest export
+### Importing from a multi-model manifest file
 
 Use `--model-name` to select one model out of a `{ "models": [...] }` file:
 
 ```bash
 npx @contedra/md-importer \
   --md-dir ./content/blog \
-  --model ./models/conteditor-export.json \
+  --model ./models/site-models.json \
   --model-name blog_posts \
   --project-id your-project-id \
   --storage-bucket your-project.firebasestorage.app

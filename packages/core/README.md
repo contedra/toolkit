@@ -15,7 +15,7 @@ pnpm add @contedra/core
 Loads a Conteditor model definition from a JSON file. Two file shapes are accepted:
 
 - **Easy format** — a single `ModelDefinition` object: `{ id, modelName, properties }`.
-- **Manifest format** — a `ModelManifest` wrapper: `{ models: [...] }` (used by Conteditor's full-project export).
+- **Manifest format** — a `ModelManifest` wrapper: `{ models: [...] }` (carries multiple model definitions in a single file).
 
 The optional `modelName` argument selects an entry from a manifest. Behaviour matrix:
 
@@ -61,9 +61,7 @@ Converts Firestore document data to proper JS types (Timestamps to Dates, etc.).
 
 ## Types
 
-The TypeScript types and the JSON Schemas track the [Conteditor `ModelDocSchema`][conteditor-schema] (valibot) one-to-one, so anything that round-trips through the Conteditor export validates here too.
-
-[conteditor-schema]: https://github.com/CircleAround/conteditor/blob/main/functions/src/shared/record-type/model/schema.ts
+contedra's content model definition format. The TypeScript interfaces below and the bundled JSON Schemas describe the same shape: a model is a list of typed properties (`dataType`-discriminated — `string` with a UI hint, `datetime`, `relatedOne`, `relatedMany`) intended for headless-CMS-style backends.
 
 ```typescript
 interface ModelDefinition {

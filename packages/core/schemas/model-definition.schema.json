@@ -2,7 +2,7 @@
   "$id": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-definition.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ModelDefinition",
-  "description": "A single Conteditor model definition (the Easy format). Maps 1:1 to ModelDocSchema in CircleAround/conteditor functions/src/shared/record-type/model/schema.ts (with the document `id` from ModelSchema = intersect([{ id }, ModelDocSchema]) merged in).",
+  "description": "A single content model definition (the Easy format). Describes the document id, the logical model name, and a list of typed properties used to render forms and persist data in headless-CMS-style backends.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "modelName", "properties"],
@@ -20,37 +20,37 @@
       "minLength": 1,
       "maxLength": 128,
       "pattern": "^[a-zA-Z0-9_-]+$",
-      "description": "Document id used by Firestore. Mirrors ModelIdSchema (alphanumerics + `-` and `_`, up to 128 chars)."
+      "description": "Stable document id (alphanumerics plus `-` and `_`, up to 128 chars)."
     },
     "ModelName": {
       "type": "string",
       "minLength": 3,
       "maxLength": 64,
       "pattern": "^[a-z][a-z0-9_]*$",
-      "description": "Logical model name (also Firestore collection name). Mirrors ModelNameSchema: lowercase, starts with a letter, 3-64 chars."
+      "description": "Logical model name, also used as the storage collection name. Lowercase, must start with a letter, 3-64 chars."
     },
     "PropertyName": {
       "type": "string",
       "minLength": 1,
-      "description": "Property field name. Mirrors `pipe(string(), nonEmpty())` in valibot."
+      "description": "Property field name. Must be a non-empty string."
     },
     "Require": {
-      "description": "`require: optional(union([boolean(), string()]))` — boolean true marks the field required; a string carries an UI validation message and is treated as truthy.",
+      "description": "Boolean `true` marks the field required; a string carries a UI validation message and is treated as truthy.",
       "anyOf": [
         { "type": "boolean" },
         { "type": "string" }
       ]
     },
     "SearchPriority": {
-      "description": "Mirrors SearchPrioritySchema: 'high' | 'normal' | 'low' | 'none'.",
+      "description": "Search-index weighting hint: 'high' | 'normal' | 'low' | 'none' ('none' opts the field out of search).",
       "enum": ["high", "normal", "low", "none"]
     },
     "FieldElement": {
-      "description": "Mirrors `union([literal('input'), literal('textarea'), literal('markdown'), literal('select')])` inside StringPropertySchema.fieldType.element.",
+      "description": "UI hint for how the string value should be edited: 'input' | 'textarea' | 'markdown' | 'select'.",
       "enum": ["input", "textarea", "markdown", "select"]
     },
     "Property": {
-      "description": "Discriminated union over `dataType`. Mirrors ModelPropertySchema = union([StringProperty, DatetimeProperty, RelatedOneProperty, RelatedManyProperty]).",
+      "description": "Discriminated union over `dataType`: a property is one of StringProperty | DatetimeProperty | RelatedOneProperty | RelatedManyProperty.",
       "oneOf": [
         { "$ref": "#/$defs/StringProperty" },
         { "$ref": "#/$defs/DatetimeProperty" },

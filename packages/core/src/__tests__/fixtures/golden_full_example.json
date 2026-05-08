@@ -2,8 +2,8 @@
   "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json",
   "models": [
     {
-      "id": "blog",
-      "modelName": "blog",
+      "id": "article",
+      "modelName": "article",
       "properties": [
         {
           "propertyName": "title",
@@ -43,42 +43,36 @@
           "require": true
         },
         {
-          "propertyName": "relatedNews",
+          "propertyName": "categories",
           "dataType": "relatedMany",
-          "relatedModel": "news"
+          "relatedModel": "category"
         }
       ]
     },
     {
-      "id": "news",
-      "modelName": "news",
+      "id": "category",
+      "modelName": "category",
       "properties": [
         {
-          "propertyName": "title",
+          "propertyName": "name",
           "dataType": "string",
           "fieldType": { "element": "input" },
           "require": true,
           "min": 1,
-          "max": 120,
+          "max": 64,
           "searchPriority": "high"
         },
         {
-          "propertyName": "body",
+          "propertyName": "description",
           "dataType": "string",
           "fieldType": { "element": "markdown" },
-          "require": true
+          "searchPriority": "low"
         },
         {
-          "propertyName": "publishedAt",
-          "dataType": "datetime",
-          "require": true
-        },
-        {
-          "propertyName": "category",
+          "propertyName": "slug",
           "dataType": "string",
           "fieldType": { "element": "select" },
-          "regex": "^[a-z][a-z0-9_-]*$",
-          "searchPriority": "low"
+          "regex": "^[a-z][a-z0-9_-]*$"
         }
       ]
     },

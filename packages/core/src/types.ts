@@ -1,7 +1,8 @@
 /**
- * Conteditor model property types. Mirror 1:1 with the valibot schemas in
- * CircleAround/conteditor `functions/src/shared/record-type/model/schema.ts`
- * (`ModelPropertySchema = union([...])`).
+ * Content model property types. A property is a discriminated union over
+ * `dataType` (string | datetime | relatedOne | relatedMany); see the
+ * accompanying JSON Schema (`@contedra/core/schemas/model-definition.schema.json`)
+ * for the canonical shape.
  */
 
 export type FieldElement = "input" | "textarea" | "markdown" | "select";
@@ -9,8 +10,8 @@ export type FieldElement = "input" | "textarea" | "markdown" | "select";
 export type SearchPriority = "high" | "normal" | "low" | "none";
 
 /**
- * `require: optional(union([boolean(), string()]))`. A string value is
- * treated as truthy (it carries a UI validation message).
+ * Boolean `true` marks the field required. A string value carries a UI
+ * validation message and is treated as truthy.
  */
 export type RequireFlag = boolean | string;
 

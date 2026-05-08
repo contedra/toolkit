@@ -2,7 +2,7 @@
   "$id": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ModelManifest",
-  "description": "Wrapper format that bundles multiple Conteditor model definitions in one file. Each entry under `models` references the `ModelDefinition` schema by `$ref` so the shape stays defined in exactly one place.",
+  "description": "Wrapper format that bundles multiple content model definitions in one file. Each entry under `models` references the `ModelDefinition` schema by `$ref` so the shape stays defined in exactly one place.",
   "type": "object",
   "required": ["models"],
   "additionalProperties": true,

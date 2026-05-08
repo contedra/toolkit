@@ -43,14 +43,14 @@ export const collections = { blogPosts };
 | `bodyField` | `string` | No | Field to map to Astro's `body` (auto-detects `element: "markdown"` fields) |
 | `assets` | `AssetOptions` | No | Asset resolution options for `asset://` URIs (see below) |
 
-### Loading from a Conteditor manifest export
+### Loading from a multi-model manifest file
 
-Conteditor can export every model in one file using the `ModelManifest` shape (`{ "models": [...] }`). Drop that file in directly and select the model you want with `modelName`:
+When the `modelFile` is a `ModelManifest` (`{ "models": [...] }`) carrying several models in one file, pass `modelName` to pick the entry to load:
 
 ```typescript
 const blogPosts = defineCollection({
   loader: contedraLoader({
-    modelFile: "./models/conteditor-export.json",
+    modelFile: "./models/site-models.json",
     modelName: "blog_posts",
     firebaseConfig: { projectId: "your-project-id" },
   }),
