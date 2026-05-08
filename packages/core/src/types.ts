@@ -16,6 +16,7 @@ export interface ModelDefinition {
 }
 
 export interface ModelManifest {
+  /** Must contain at least one entry; loadModel rejects empty manifests at runtime. */
   models: ModelDefinition[];
 }
 

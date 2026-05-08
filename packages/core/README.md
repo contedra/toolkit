@@ -93,7 +93,7 @@ interface FirebaseConfig {
 
 The package ships JSON Schemas (Draft 2020-12) for validating model files in editors and CI:
 
-```
+```text
 @contedra/core/schemas/model-definition.schema.json   # single ModelDefinition (Easy format)
 @contedra/core/schemas/model-manifest.schema.json     # ModelManifest (multi-model format)
 ```
@@ -104,7 +104,7 @@ They are exposed through both `package.json` `exports` (Node-side `import`) and 
 
 Each released schema file's `$id` is the version-pinned jsdelivr URL of the same release, for example:
 
-```
+```text
 https://cdn.jsdelivr.net/npm/@contedra/core@<VERSION>/schemas/model-manifest.schema.json
 ```
 

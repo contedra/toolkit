@@ -89,6 +89,18 @@ describe("loadModel — ModelManifest (multi-model format)", () => {
       loadModel(resolve(fixturesDir, "manifest_duplicate.json"), "blog_posts")
     ).rejects.toThrow(/appears 2 times/);
   });
+
+  it("throws a dedicated error for an empty manifest (no modelName)", async () => {
+    await expect(
+      loadModel(resolve(fixturesDir, "manifest_empty.json"))
+    ).rejects.toThrow(/"models" array is empty/);
+  });
+
+  it("throws a dedicated error for an empty manifest (with modelName)", async () => {
+    await expect(
+      loadModel(resolve(fixturesDir, "manifest_empty.json"), "blog_posts")
+    ).rejects.toThrow(/"models" array is empty/);
+  });
 });
 
 describe("loadModel — bare array (unsupported)", () => {

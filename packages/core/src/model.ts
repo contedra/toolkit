@@ -87,6 +87,12 @@ function resolveFromManifest(
 ): ModelDefinition {
   const models = manifest.models;
 
+  if (models.length === 0) {
+    throw new Error(
+      `Invalid model manifest "${filePath}": "models" array is empty.`
+    );
+  }
+
   if (!models.every(isModelDefinition)) {
     throw new Error(
       `Invalid model manifest "${filePath}": every entry under "models" ` +
