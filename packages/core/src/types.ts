@@ -9,17 +9,11 @@ export type FieldElement = "input" | "textarea" | "markdown" | "select";
 
 export type SearchPriority = "high" | "normal" | "low" | "none";
 
-/**
- * Boolean `true` marks the field required. A string value carries a UI
- * validation message and is treated as truthy.
- */
-export type RequireFlag = boolean | string;
-
 export interface StringProperty {
   propertyName: string;
   dataType: "string";
   fieldType: { element: FieldElement };
-  require?: RequireFlag;
+  require?: boolean;
   min?: number;
   max?: number;
   regex?: string;
@@ -30,7 +24,7 @@ export interface StringProperty {
 export interface DatetimeProperty {
   propertyName: string;
   dataType: "datetime";
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
   onUpdate?: string;
 }
@@ -39,7 +33,7 @@ export interface RelatedOneProperty {
   propertyName: string;
   dataType: "relatedOne";
   relatedModel: string;
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
 }
 
@@ -47,7 +41,7 @@ export interface RelatedManyProperty {
   propertyName: string;
   dataType: "relatedMany";
   relatedModel: string;
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
 }
 

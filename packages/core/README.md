@@ -84,13 +84,12 @@ type ModelProperty =
 
 type FieldElement = "input" | "textarea" | "markdown" | "select";
 type SearchPriority = "high" | "normal" | "low" | "none";
-type RequireFlag = boolean | string; // string carries a UI validation message
 
 interface StringProperty {
   propertyName: string;
   dataType: "string";
   fieldType: { element: FieldElement };
-  require?: RequireFlag;
+  require?: boolean;
   min?: number;
   max?: number;
   regex?: string;
@@ -101,7 +100,7 @@ interface StringProperty {
 interface DatetimeProperty {
   propertyName: string;
   dataType: "datetime";
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
   onUpdate?: string;
 }
@@ -110,7 +109,7 @@ interface RelatedOneProperty {
   propertyName: string;
   dataType: "relatedOne";
   relatedModel: string; // ModelId
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
 }
 
@@ -118,7 +117,7 @@ interface RelatedManyProperty {
   propertyName: string;
   dataType: "relatedMany";
   relatedModel: string; // ModelId
-  require?: RequireFlag;
+  require?: boolean;
   defaultValue?: string;
 }
 

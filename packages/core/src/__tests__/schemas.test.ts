@@ -209,6 +209,22 @@ describe("JSON Schemas — ajv validation", () => {
     expect(validateDefinition(broken)).toBe(false);
   });
 
+  it("rejects a string `require` value (require is boolean only)", () => {
+    const broken = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        {
+          propertyName: "title",
+          dataType: "string",
+          fieldType: { element: "input" },
+          require: "true",
+        },
+      ],
+    };
+    expect(validateDefinition(broken)).toBe(false);
+  });
+
   it("accepts the full-coverage golden manifest", () => {
     const data = readJson(
       resolve(fixturesDir, "golden_full_example.json")

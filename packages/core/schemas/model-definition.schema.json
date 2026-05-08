@@ -34,13 +34,6 @@
       "minLength": 1,
       "description": "Property field name. Must be a non-empty string."
     },
-    "Require": {
-      "description": "Boolean `true` marks the field required; a string carries a UI validation message and is treated as truthy.",
-      "anyOf": [
-        { "type": "boolean" },
-        { "type": "string" }
-      ]
-    },
     "SearchPriority": {
       "description": "Search-index weighting hint: 'high' | 'normal' | 'low' | 'none' ('none' opts the field out of search).",
       "enum": ["high", "normal", "low", "none"]
@@ -72,7 +65,10 @@
             "element": { "$ref": "#/$defs/FieldElement" }
           }
         },
-        "require": { "$ref": "#/$defs/Require" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
         "min": { "type": "number" },
         "max": { "type": "number" },
         "regex": { "type": "string" },
@@ -87,7 +83,10 @@
       "properties": {
         "propertyName": { "$ref": "#/$defs/PropertyName" },
         "dataType": { "const": "datetime" },
-        "require": { "$ref": "#/$defs/Require" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
         "defaultValue": { "type": "string" },
         "onUpdate": { "type": "string" }
       }
@@ -100,7 +99,10 @@
         "propertyName": { "$ref": "#/$defs/PropertyName" },
         "dataType": { "const": "relatedOne" },
         "relatedModel": { "$ref": "#/$defs/ModelId" },
-        "require": { "$ref": "#/$defs/Require" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
         "defaultValue": { "type": "string" }
       }
     },
@@ -112,7 +114,10 @@
         "propertyName": { "$ref": "#/$defs/PropertyName" },
         "dataType": { "const": "relatedMany" },
         "relatedModel": { "$ref": "#/$defs/ModelId" },
-        "require": { "$ref": "#/$defs/Require" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
         "defaultValue": { "type": "string" }
       }
     }

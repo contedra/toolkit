@@ -84,7 +84,7 @@
           "propertyName": "displayName",
           "dataType": "string",
           "fieldType": { "element": "input" },
-          "require": "displayName is required",
+          "require": true,
           "searchPriority": "high"
         },
         {

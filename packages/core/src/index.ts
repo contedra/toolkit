@@ -23,6 +23,5 @@ export type {
   RelatedManyProperty,
   FieldElement,
   SearchPriority,
-  RequireFlag,
   FirebaseConfig,
 } from "./types.js";
