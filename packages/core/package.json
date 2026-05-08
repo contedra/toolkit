@@ -3,12 +3,16 @@
   "version": "0.2.2",
   "description": "Core library for Contedra toolkit — Firebase connection, model parsing, and schema generation",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./valibot": {
+      "types": "./dist/generated/model-definition.valibot.d.ts",
+      "import": "./dist/generated/model-definition.valibot.js"
     },
     "./schemas/model-definition.schema.json": "./schemas/model-definition.schema.json",
     "./schemas/model-manifest.schema.json": "./schemas/model-manifest.schema.json",
@@ -22,6 +26,7 @@
     "build": "tsc",
     "test": "firebase emulators:exec --only storage --project test \"vitest run\"",
     "lint": "oxlint src",
+    "generate:valibot": "node ../../scripts/generate-valibot.mjs",
     "prepack": "node ../../scripts/rewrite-schema-ids.mjs"
   },
   "keywords": [
@@ -39,6 +44,7 @@
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
+    "valibot": "^1.0.0",
     "zod": "^3.0.0"
   },
   "devDependencies": {
