@@ -60,6 +60,7 @@
         "dataType": { "const": "string" },
         "fieldType": {
           "type": "object",
+          "additionalProperties": false,
           "required": ["element"],
           "properties": {
             "element": { "$ref": "#/$defs/FieldElement" }

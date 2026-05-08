@@ -9,8 +9,8 @@ const corePkg = JSON.parse(
   readFileSync(resolve(import.meta.dirname, "..", "..", "package.json"), "utf-8")
 ) as { name: string; version: string };
 
-function readJson(filePath: string): unknown {
-  return JSON.parse(readFileSync(filePath, "utf-8"));
+function readJson(filePath: string): Record<string, unknown> {
+  return JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, unknown>;
 }
 
 describe("JSON Schemas — ship layout", () => {
@@ -194,7 +194,7 @@ describe("JSON Schemas — ajv validation", () => {
     expect(validateDefinition(broken)).toBe(false);
   });
 
-  it("rejects modelName shorter than 3 chars (matches valibot minLength)", () => {
+  it("rejects modelName shorter than 3 chars (JSON Schema minLength: 3)", () => {
     const broken = {
       id: "blog",
       modelName: "ab",
