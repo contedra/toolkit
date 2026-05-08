@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import type { Loader, LoaderContext } from "astro/loaders";
 import {
   loadModel,
+  resolveModel,
   detectBodyField,
   buildSchema,
   initFirebase,
@@ -26,7 +27,7 @@ export function contedraLoader(config: ContedraLoaderConfig): Loader {
     name: "contedra-firestore",
 
     async load(context) {
-      const model = await loadModel(config.modelFile);
+      const model = await loadModel(config.modelFile, config.modelName);
       const bodyField = detectBodyField(model, config.bodyField);
       const collectionName = config.collection ?? model.modelName;
 
@@ -70,7 +71,8 @@ export function contedraLoader(config: ContedraLoaderConfig): Loader {
 
     schema() {
       const raw = readFileSync(config.modelFile, "utf-8");
-      const model = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      const model = resolveModel(parsed, config.modelFile, config.modelName);
       const bodyField = detectBodyField(model, config.bodyField);
       return buildSchema(model.properties, bodyField);
     },

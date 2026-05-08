@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Mock @contedra/core
 vi.mock("@contedra/core", () => ({
   loadModel: vi.fn(),
+  resolveModel: vi.fn(),
   detectBodyField: vi.fn(),
   buildSchema: vi.fn(),
   initFirebase: vi.fn(() => ({ name: "contedra-test-project" })),
@@ -285,6 +286,49 @@ describe("contedraLoader with assets (download mode)", () => {
     const setCall = ctx.store.set.mock.calls[0][0];
     expect(setCall.data.thumbnail).toBe(
       "/images/blog_posts/post-1/thumb.jpg"
+    );
+  });
+});
+
+describe("contedraLoader — modelName forwarding", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(loadModel).mockResolvedValue(mockModel);
+    vi.mocked(detectBodyField).mockReturnValue("content");
+    vi.mocked(initFirestore).mockReturnValue({} as any);
+    vi.mocked(fetchDocuments).mockResolvedValue([]);
+  });
+
+  it("forwards modelName to loadModel", async () => {
+    const config: ContedraLoaderConfig = {
+      modelFile: "./models/manifest.json",
+      modelName: "blog_posts",
+      firebaseConfig: { projectId: "test-project" },
+    };
+
+    const loader = contedraLoader(config);
+    const ctx = createMockContext();
+    await loader.load(ctx as any);
+
+    expect(loadModel).toHaveBeenCalledWith(
+      "./models/manifest.json",
+      "blog_posts"
+    );
+  });
+
+  it("passes undefined to loadModel when modelName is omitted", async () => {
+    const config: ContedraLoaderConfig = {
+      modelFile: "./models/blog_posts.json",
+      firebaseConfig: { projectId: "test-project" },
+    };
+
+    const loader = contedraLoader(config);
+    const ctx = createMockContext();
+    await loader.load(ctx as any);
+
+    expect(loadModel).toHaveBeenCalledWith(
+      "./models/blog_posts.json",
+      undefined
     );
   });
 });

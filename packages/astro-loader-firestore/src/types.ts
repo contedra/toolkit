@@ -12,8 +12,10 @@ export interface AssetOptions {
 }
 
 export interface ContedraLoaderConfig {
-  /** Path to the Conteditor model JSON file */
+  /** Path to the Conteditor model JSON file (single ModelDefinition or ModelManifest) */
   modelFile: string;
+  /** Required when `modelFile` is a ModelManifest containing multiple models */
+  modelName?: string;
   /** Field name to map to Astro's body (auto-detects element:"markdown" if omitted) */
   bodyField?: string;
   /** Firebase configuration */

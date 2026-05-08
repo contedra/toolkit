@@ -10,9 +10,30 @@ pnpm add @contedra/core
 
 ## API
 
-### `loadModel(filePath: string): ModelDefinition`
+### `loadModel(filePath: string, modelName?: string): Promise<ModelDefinition>`
 
-Loads a Conteditor model definition from a JSON file.
+Loads a Conteditor model definition from a JSON file. Two file shapes are accepted:
+
+- **Easy format** — a single `ModelDefinition` object: `{ id, modelName, properties }`.
+- **Manifest format** — a `ModelManifest` wrapper: `{ models: [...] }` (used by Conteditor's full-project export).
+
+The optional `modelName` argument selects an entry from a manifest. Behaviour matrix:
+
+| File shape | `modelName` | Result |
+|---|---|---|
+| single `ModelDefinition` | omitted | returns the object |
+| single `ModelDefinition` | matches `model.modelName` | returns the object |
+| single `ModelDefinition` | does not match | error |
+| `ModelManifest` | omitted | error (ambiguous) |
+| `ModelManifest` | matches one entry | returns that entry |
+| `ModelManifest` | matches no entry | error |
+| `ModelManifest` | matches multiple entries | error |
+
+A bare-array file (`[ {...}, {...} ]`) is **not** accepted and triggers an explicit error.
+
+### `resolveModel(parsed: unknown, filePath: string, modelName?: string): ModelDefinition`
+
+Synchronous variant for callers that have already parsed the JSON (e.g., Astro Content Layer's `schema()` hook). Same selection rules as `loadModel`.
 
 ### `buildSchema(properties: ModelProperty[], bodyField?: string): ZodObject`
 
@@ -47,6 +68,12 @@ interface ModelDefinition {
   properties: ModelProperty[];
 }
 
+interface ModelManifest {
+  models: ModelDefinition[];
+}
+
+type ModelFile = ModelDefinition | ModelManifest;
+
 interface ModelProperty {
   propertyName: string;
   dataType: "string" | "datetime" | "relatedOne" | "relatedMany";
@@ -61,6 +88,43 @@ interface FirebaseConfig {
   credential?: string; // Path to service account JSON
 }
 ```
+
+## JSON Schemas
+
+The package ships JSON Schemas (Draft 2020-12) for validating model files in editors and CI:
+
+```
+@contedra/core/schemas/model-definition.schema.json   # single ModelDefinition (Easy format)
+@contedra/core/schemas/model-manifest.schema.json     # ModelManifest (multi-model format)
+```
+
+They are exposed through both `package.json` `exports` (Node-side `import`) and the npm tarball. **jsdelivr** automatically serves any file inside an npm package, so no separate hosting is needed.
+
+### URL convention — version-pinned `$id` / `$schema`
+
+Each released schema file's `$id` is the version-pinned jsdelivr URL of the same release, for example:
+
+```
+https://cdn.jsdelivr.net/npm/@contedra/core@<VERSION>/schemas/model-manifest.schema.json
+```
+
+Pinning to a specific version gives the schema versioned-contract semantics: any breaking change ships under a new URL. Users reference the same pinned URL via `$schema` from their model files so editor and CI tooling cache deterministically.
+
+### Reference a schema from your model file
+
+```jsonc
+// my-models.json
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core@<VERSION>/schemas/model-manifest.schema.json",
+  "models": [
+    { "id": "...", "modelName": "blog", "properties": [/* ... */] }
+  ]
+}
+```
+
+### Source placeholder & release rewrite
+
+The schemas in source use `@contedra/core@0.0.0-PLACEHOLDER` to keep PRs free of version churn. The `prepack` script (`scripts/rewrite-schema-ids.mjs`) rewrites the `$id` to the actual version of `@contedra/core` just before publish, so the published artifact and the URL clients use line up exactly.
 
 ## License
 

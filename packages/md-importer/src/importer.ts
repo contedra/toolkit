@@ -31,7 +31,7 @@ export function generateDocId(filePath: string): string {
 export async function mdImporter(
   config: MdImporterConfig
 ): Promise<ImportResult> {
-  const model = await loadModel(config.modelFile);
+  const model = await loadModel(config.modelFile, config.modelName);
   const bodyField = detectBodyField(model);
   const collectionName = config.collection ?? model.modelName;
   const imageBaseDir = config.imageBaseDir

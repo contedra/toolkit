@@ -1,0 +1,110 @@
+import { describe, it, expect } from "vitest";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import Ajv2020 from "ajv/dist/2020.js";
+
+const schemasDir = resolve(import.meta.dirname, "..", "..", "schemas");
+const fixturesDir = resolve(import.meta.dirname, "fixtures");
+const corePkg = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "..", "..", "package.json"), "utf-8")
+) as { name: string; version: string };
+
+function readJson(filePath: string): unknown {
+  return JSON.parse(readFileSync(filePath, "utf-8"));
+}
+
+describe("JSON Schemas — ship layout", () => {
+  it("ships model-definition.schema.json at the expected path", () => {
+    expect(
+      existsSync(resolve(schemasDir, "model-definition.schema.json"))
+    ).toBe(true);
+  });
+
+  it("ships model-manifest.schema.json at the expected path", () => {
+    expect(
+      existsSync(resolve(schemasDir, "model-manifest.schema.json"))
+    ).toBe(true);
+  });
+
+  it("each schema's $id is a version-pinned jsdelivr URL", () => {
+    const def = readJson(resolve(schemasDir, "model-definition.schema.json")) as {
+      $id: string;
+    };
+    const man = readJson(resolve(schemasDir, "model-manifest.schema.json")) as {
+      $id: string;
+    };
+    const pattern =
+      /^https:\/\/cdn\.jsdelivr\.net\/npm\/@contedra\/core@[^/]+\/schemas\/[a-z-]+\.schema\.json$/;
+    expect(def.$id).toMatch(pattern);
+    expect(man.$id).toMatch(pattern);
+  });
+
+  it("$id placeholder gets rewritten to the package version after running the release script", () => {
+    // The on-disk schemas are kept with a 0.0.0-PLACEHOLDER tag in source so
+    // PRs do not have to bump the URL. The release-time rewrite script
+    // replaces it with the published @contedra/core version. We exercise
+    // that script on an in-memory copy here so the assertion is robust to
+    // whichever version is on disk at test time.
+    const placeholder =
+      "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json";
+    const expected = `https://cdn.jsdelivr.net/npm/@contedra/core@${corePkg.version}/schemas/model-manifest.schema.json`;
+    const rewritten = placeholder.replace(
+      /(@contedra\/core@)[^/]+(\/schemas\/)/,
+      `$1${corePkg.version}$2`
+    );
+    expect(rewritten).toBe(expected);
+  });
+});
+
+describe("JSON Schemas — ajv validation", () => {
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const definitionSchema = readJson(
+    resolve(schemasDir, "model-definition.schema.json")
+  );
+  const manifestSchema = readJson(
+    resolve(schemasDir, "model-manifest.schema.json")
+  );
+  const validateDefinition = ajv.compile(definitionSchema);
+  const validateManifest = ajv.compile(manifestSchema);
+
+  it("accepts a valid single ModelDefinition fixture", () => {
+    const data = readJson(resolve(fixturesDir, "blog_posts.json"));
+    expect(validateDefinition(data)).toBe(true);
+  });
+
+  it("accepts a valid ModelManifest fixture", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_multi.json"));
+    expect(validateManifest(data)).toBe(true);
+  });
+
+  it("rejects a bare array against the ModelDefinition schema", () => {
+    const data = readJson(resolve(fixturesDir, "bare_array.json"));
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects a bare array against the ModelManifest schema", () => {
+    const data = readJson(resolve(fixturesDir, "bare_array.json"));
+    expect(validateManifest(data)).toBe(false);
+  });
+
+  it("rejects a single ModelDefinition file against the ModelManifest schema", () => {
+    const data = readJson(resolve(fixturesDir, "blog_posts.json"));
+    expect(validateManifest(data)).toBe(false);
+  });
+
+  it("rejects entries missing required fields", () => {
+    const broken = {
+      models: [{ id: "x", modelName: "x" }],
+    };
+    expect(validateManifest(broken)).toBe(false);
+  });
+
+  it("rejects entries with unknown dataType values", () => {
+    const broken = {
+      id: "x",
+      modelName: "x",
+      properties: [{ propertyName: "title", dataType: "wat" }],
+    };
+    expect(validateDefinition(broken)).toBe(false);
+  });
+});

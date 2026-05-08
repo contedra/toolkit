@@ -1,0 +1,20 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json",
+  "models": [
+    {
+      "id": "blog_posts",
+      "modelName": "blog_posts",
+      "properties": [
+        { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+        { "propertyName": "content", "dataType": "string", "fieldType": { "element": "markdown" } }
+      ]
+    },
+    {
+      "id": "categories",
+      "modelName": "categories",
+      "properties": [
+        { "propertyName": "name", "dataType": "string", "fieldType": { "element": "input" }, "require": true }
+      ]
+    }
+  ]
+}

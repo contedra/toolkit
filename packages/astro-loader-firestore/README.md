@@ -34,13 +34,30 @@ export const collections = { blogPosts };
 
 | Option | Type | Required | Description |
 |--------|------|----------|-------------|
-| `modelFile` | `string` | Yes | Path to the Conteditor model JSON file |
+| `modelFile` | `string` | Yes | Path to the Conteditor model JSON file (single `ModelDefinition` or `ModelManifest`) |
+| `modelName` | `string` | Conditional | Required when `modelFile` is a `ModelManifest` containing multiple models |
 | `firebaseConfig.projectId` | `string` | Yes | Firebase project ID |
 | `firebaseConfig.credential` | `string` | No | Path to service account JSON (uses ADC if omitted) |
 | `firebaseConfig.storageBucket` | `string` | No | Firebase Storage bucket name (required for `assets`) |
 | `collection` | `string` | No | Firestore collection name (defaults to `modelName`) |
 | `bodyField` | `string` | No | Field to map to Astro's `body` (auto-detects `element: "markdown"` fields) |
 | `assets` | `AssetOptions` | No | Asset resolution options for `asset://` URIs (see below) |
+
+### Loading from a Conteditor manifest export
+
+Conteditor can export every model in one file using the `ModelManifest` shape (`{ "models": [...] }`). Drop that file in directly and select the model you want with `modelName`:
+
+```typescript
+const blogPosts = defineCollection({
+  loader: contedraLoader({
+    modelFile: "./models/conteditor-export.json",
+    modelName: "blog_posts",
+    firebaseConfig: { projectId: "your-project-id" },
+  }),
+});
+```
+
+For single-model files (`{ id, modelName, properties }`), `modelName` is optional. See [`@contedra/core`](../core/README.md#loadmodelfilepath-string-modelname-string-promisemodeldefinition) for the full selection matrix.
 
 ## Asset Resolution
 

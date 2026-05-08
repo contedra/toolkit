@@ -1,4 +1,4 @@
-export { loadModel, detectBodyField } from "./model.js";
+export { loadModel, resolveModel, detectBodyField } from "./model.js";
 export { buildSchema, dataTypeToZod } from "./schema.js";
 export { initFirebase, initFirestore, fetchDocuments, transformDocumentData } from "./firestore.js";
 export {
@@ -12,4 +12,10 @@ export {
   collectAssetUris,
   collectAssetUrisFromRecord,
 } from "./assets.js";
-export type { ModelDefinition, ModelProperty, FirebaseConfig } from "./types.js";
+export type {
+  ModelDefinition,
+  ModelManifest,
+  ModelFile,
+  ModelProperty,
+  FirebaseConfig,
+} from "./types.js";

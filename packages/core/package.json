@@ -9,15 +9,20 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./schemas/model-definition.schema.json": "./schemas/model-definition.schema.json",
+    "./schemas/model-manifest.schema.json": "./schemas/model-manifest.schema.json",
+    "./schemas/*": "./schemas/*"
   },
   "files": [
-    "dist"
+    "dist",
+    "schemas"
   ],
   "scripts": {
     "build": "tsc",
     "test": "firebase emulators:exec --only storage --project test \"vitest run\"",
-    "lint": "oxlint src"
+    "lint": "oxlint src",
+    "prepack": "node ../../scripts/rewrite-schema-ids.mjs"
   },
   "keywords": [
     "conteditor",
@@ -36,6 +41,8 @@
     "zod": "^3.0.0"
   },
   "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "oxlint": "^1.57.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"

@@ -13,6 +13,7 @@ function buildProgram(actionFn: (...args: unknown[]) => void) {
     .requiredOption("--model <path>", "Path to model definition JSON")
     .requiredOption("--project-id <id>", "Firebase project ID")
     .option("--credential <path>", "Path to service account JSON")
+    .option("--model-name <name>", "Model name from manifest")
     .option("--collection <name>", "Firestore collection name")
     .option("--storage-bucket <name>", "Firebase Storage bucket name")
     .option("--no-images", "Skip image processing")
@@ -65,6 +66,29 @@ describe("CLI option parsing", () => {
     expect(actionFn).toHaveBeenCalled();
     const opts = actionFn.mock.calls[0]![0] as Record<string, unknown>;
     expect(opts.images).toBe(false);
+  });
+
+  it("parses --model-name option", async () => {
+    const actionFn = vi.fn();
+    const program = buildProgram(actionFn);
+
+    await program.parseAsync([
+      "node",
+      "md-importer",
+      "--md-dir",
+      "./content",
+      "--model",
+      "./manifest.json",
+      "--model-name",
+      "blog_posts",
+      "--project-id",
+      "my-project",
+      "--storage-bucket",
+      "my-project.firebasestorage.app",
+    ]);
+
+    const opts = actionFn.mock.calls[0]![0] as Record<string, unknown>;
+    expect(opts.modelName).toBe("blog_posts");
   });
 
   it("defaults images to true when --no-images is not set", async () => {

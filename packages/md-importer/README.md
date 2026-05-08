@@ -24,7 +24,8 @@ npx @contedra/md-importer \
 | Option | Required | Description |
 |--------|----------|-------------|
 | `--md-dir <path>` | Yes | Directory containing `.md` files |
-| `--model <path>` | Yes | Path to model definition JSON |
+| `--model <path>` | Yes | Path to model definition JSON (single `ModelDefinition` or `ModelManifest`) |
+| `--model-name <name>` | Conditional | Model name to select from a manifest (required when `--model` points to a `ModelManifest` with multiple models) |
 | `--project-id <id>` | Yes | Firebase project ID |
 | `--credential <path>` | No | Path to service account JSON (uses ADC if omitted) |
 | `--collection <name>` | No | Firestore collection name (defaults to `modelName`) |
@@ -33,6 +34,19 @@ npx @contedra/md-importer \
 | `--image-base-dir <path>` | No | Directory for resolving absolute image paths (e.g. `./public`) |
 | `--image-fields <fields>` | No | Comma-separated frontmatter field names containing image paths (e.g. `heroImage,cover`) |
 | `--field-mapping <json>` | No | JSON mapping frontmatter keys to model properties |
+
+### Importing from a Conteditor manifest export
+
+Use `--model-name` to select one model out of a `{ "models": [...] }` file:
+
+```bash
+npx @contedra/md-importer \
+  --md-dir ./content/blog \
+  --model ./models/conteditor-export.json \
+  --model-name blog_posts \
+  --project-id your-project-id \
+  --storage-bucket your-project.firebasestorage.app
+```
 
 > \* `--storage-bucket` is required unless `--no-images` is set.
 
@@ -60,6 +74,7 @@ import { mdImporter } from "@contedra/md-importer";
 const result = await mdImporter({
   mdDir: "./content",
   modelFile: "./models/blog_posts.json",
+  // modelName: "blog_posts",  // required when modelFile is a ModelManifest with multiple models
   firebaseConfig: {
     projectId: "your-project-id",
     credential: "./service-account.json",

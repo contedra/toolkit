@@ -15,6 +15,12 @@ export interface ModelDefinition {
   properties: ModelProperty[];
 }
 
+export interface ModelManifest {
+  models: ModelDefinition[];
+}
+
+export type ModelFile = ModelDefinition | ModelManifest;
+
 export interface FirebaseConfig {
   projectId: string;
   /** Path to service account JSON (uses Application Default Credentials if omitted) */

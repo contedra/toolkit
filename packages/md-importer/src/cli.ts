@@ -13,6 +13,10 @@ program
   .requiredOption("--model <path>", "Path to model definition JSON")
   .requiredOption("--project-id <id>", "Firebase project ID")
   .option("--credential <path>", "Path to service account JSON")
+  .option(
+    "--model-name <name>",
+    "Model name to select from a ModelManifest (required when the file contains multiple models)"
+  )
   .option("--collection <name>", "Firestore collection name (defaults to modelName)")
   .option("--storage-bucket <name>", "Firebase Storage bucket name (e.g. your-project.firebasestorage.app)")
   .option("--no-images", "Skip image extraction, upload, and URL replacement")
@@ -38,6 +42,7 @@ program
     const result = await mdImporter({
       mdDir: opts.mdDir,
       modelFile: opts.model,
+      modelName: opts.modelName,
       firebaseConfig: {
         projectId: opts.projectId,
         credential: opts.credential,
