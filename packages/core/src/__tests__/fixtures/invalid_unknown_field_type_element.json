@@ -1,0 +1,11 @@
+{
+  "id": "blog_posts",
+  "modelName": "blog_posts",
+  "properties": [
+    {
+      "propertyName": "title",
+      "dataType": "string",
+      "fieldType": { "element": "unknown" }
+    }
+  ]
+}

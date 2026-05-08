@@ -122,7 +122,7 @@ describe("JSON Schemas — ajv validation", () => {
 
   it("rejects manifest entries missing required fields (validated through the $ref)", () => {
     const broken = {
-      models: [{ id: "x", modelName: "x" }],
+      models: [{ id: "blog", modelName: "blog" }],
     };
     expect(validateManifest(broken)).toBe(false);
   });
@@ -132,8 +132,8 @@ describe("JSON Schemas — ajv validation", () => {
     const broken = {
       models: [
         {
-          id: "x",
-          modelName: "x",
+          id: "blog",
+          modelName: "blog",
           properties: [{ propertyName: "title", dataType: "wat" }],
         },
       ],
@@ -143,10 +143,76 @@ describe("JSON Schemas — ajv validation", () => {
 
   it("rejects entries with unknown dataType values", () => {
     const broken = {
-      id: "x",
-      modelName: "x",
+      id: "blog",
+      modelName: "blog",
       properties: [{ propertyName: "title", dataType: "wat" }],
     };
     expect(validateDefinition(broken)).toBe(false);
+  });
+
+  it("rejects modelName that does not match the lowercase pattern", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_modelname_uppercase.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects relatedOne entries missing relatedModel", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_missing_related_model.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects fieldType.element values outside the enum", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_unknown_field_type_element.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects searchPriority values outside the enum", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_search_priority.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects unknown top-level keys (additionalProperties: false)", () => {
+    const broken = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        {
+          propertyName: "title",
+          dataType: "string",
+          fieldType: { element: "input" },
+        },
+      ],
+      extraField: "nope",
+    };
+    expect(validateDefinition(broken)).toBe(false);
+  });
+
+  it("rejects modelName shorter than 3 chars (matches valibot minLength)", () => {
+    const broken = {
+      id: "blog",
+      modelName: "ab",
+      properties: [
+        {
+          propertyName: "title",
+          dataType: "string",
+          fieldType: { element: "input" },
+        },
+      ],
+    };
+    expect(validateDefinition(broken)).toBe(false);
+  });
+
+  it("accepts the corporate-website golden manifest", () => {
+    const data = readJson(
+      resolve(fixturesDir, "golden_corporate_website.json")
+    );
+    expect(validateManifest(data)).toBe(true);
   });
 });

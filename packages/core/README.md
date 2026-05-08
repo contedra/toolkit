@@ -61,10 +61,14 @@ Converts Firestore document data to proper JS types (Timestamps to Dates, etc.).
 
 ## Types
 
+The TypeScript types and the JSON Schemas track the [Conteditor `ModelDocSchema`][conteditor-schema] (valibot) one-to-one, so anything that round-trips through the Conteditor export validates here too.
+
+[conteditor-schema]: https://github.com/CircleAround/conteditor/blob/main/functions/src/shared/record-type/model/schema.ts
+
 ```typescript
 interface ModelDefinition {
-  id: string;
-  modelName: string;
+  id: string;          // ModelId — /^[a-zA-Z0-9_-]+$/, 1-128 chars
+  modelName: string;   // ModelName — /^[a-z][a-z0-9_]*$/, 3-64 chars
   properties: ModelProperty[];
 }
 
@@ -74,13 +78,50 @@ interface ModelManifest {
 
 type ModelFile = ModelDefinition | ModelManifest;
 
-interface ModelProperty {
+type ModelProperty =
+  | StringProperty
+  | DatetimeProperty
+  | RelatedOneProperty
+  | RelatedManyProperty;
+
+type FieldElement = "input" | "textarea" | "markdown" | "select";
+type SearchPriority = "high" | "normal" | "low" | "none";
+type RequireFlag = boolean | string; // string carries a UI validation message
+
+interface StringProperty {
   propertyName: string;
-  dataType: "string" | "datetime" | "relatedOne" | "relatedMany";
-  fieldType?: { element?: string };
-  require?: boolean;
-  defaultValue?: unknown;
-  relatedModel?: string;
+  dataType: "string";
+  fieldType: { element: FieldElement };
+  require?: RequireFlag;
+  min?: number;
+  max?: number;
+  regex?: string;
+  defaultValue?: string;
+  searchPriority?: SearchPriority;
+}
+
+interface DatetimeProperty {
+  propertyName: string;
+  dataType: "datetime";
+  require?: RequireFlag;
+  defaultValue?: string;
+  onUpdate?: string;
+}
+
+interface RelatedOneProperty {
+  propertyName: string;
+  dataType: "relatedOne";
+  relatedModel: string; // ModelId
+  require?: RequireFlag;
+  defaultValue?: string;
+}
+
+interface RelatedManyProperty {
+  propertyName: string;
+  dataType: "relatedMany";
+  relatedModel: string; // ModelId
+  require?: RequireFlag;
+  defaultValue?: string;
 }
 
 interface FirebaseConfig {
@@ -88,6 +129,17 @@ interface FirebaseConfig {
   credential?: string; // Path to service account JSON
 }
 ```
+
+### Property variants at a glance
+
+| `dataType` | Required keys | Optional keys |
+|---|---|---|
+| `"string"` | `propertyName`, `dataType`, `fieldType.element` (`input`/`textarea`/`markdown`/`select`) | `require`, `min`, `max`, `regex`, `defaultValue`, `searchPriority` |
+| `"datetime"` | `propertyName`, `dataType` | `require`, `defaultValue`, `onUpdate` |
+| `"relatedOne"` | `propertyName`, `dataType`, `relatedModel` (ModelId) | `require`, `defaultValue` |
+| `"relatedMany"` | `propertyName`, `dataType`, `relatedModel` (ModelId) | `require`, `defaultValue` |
+
+Each property variant is `additionalProperties: false` in the JSON Schema so accidental keys are caught at validation time.
 
 ## JSON Schemas
 

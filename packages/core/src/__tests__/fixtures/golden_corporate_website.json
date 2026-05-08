@@ -1,0 +1,111 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-manifest.schema.json",
+  "models": [
+    {
+      "id": "blog",
+      "modelName": "blog",
+      "properties": [
+        {
+          "propertyName": "title",
+          "dataType": "string",
+          "fieldType": { "element": "input" },
+          "require": true,
+          "searchPriority": "high"
+        },
+        {
+          "propertyName": "summary",
+          "dataType": "string",
+          "fieldType": { "element": "textarea" },
+          "max": 280,
+          "searchPriority": "normal"
+        },
+        {
+          "propertyName": "body",
+          "dataType": "string",
+          "fieldType": { "element": "markdown" },
+          "require": true,
+          "searchPriority": "normal"
+        },
+        {
+          "propertyName": "publishedAt",
+          "dataType": "datetime",
+          "require": true
+        },
+        {
+          "propertyName": "updatedAt",
+          "dataType": "datetime",
+          "onUpdate": "${now}"
+        },
+        {
+          "propertyName": "author",
+          "dataType": "relatedOne",
+          "relatedModel": "author",
+          "require": true
+        },
+        {
+          "propertyName": "relatedNews",
+          "dataType": "relatedMany",
+          "relatedModel": "news"
+        }
+      ]
+    },
+    {
+      "id": "news",
+      "modelName": "news",
+      "properties": [
+        {
+          "propertyName": "title",
+          "dataType": "string",
+          "fieldType": { "element": "input" },
+          "require": true,
+          "min": 1,
+          "max": 120,
+          "searchPriority": "high"
+        },
+        {
+          "propertyName": "body",
+          "dataType": "string",
+          "fieldType": { "element": "markdown" },
+          "require": true
+        },
+        {
+          "propertyName": "publishedAt",
+          "dataType": "datetime",
+          "require": true
+        },
+        {
+          "propertyName": "category",
+          "dataType": "string",
+          "fieldType": { "element": "select" },
+          "regex": "^[a-z][a-z0-9_-]*$",
+          "searchPriority": "low"
+        }
+      ]
+    },
+    {
+      "id": "author",
+      "modelName": "author",
+      "properties": [
+        {
+          "propertyName": "displayName",
+          "dataType": "string",
+          "fieldType": { "element": "input" },
+          "require": "displayName is required",
+          "searchPriority": "high"
+        },
+        {
+          "propertyName": "bio",
+          "dataType": "string",
+          "fieldType": { "element": "markdown" },
+          "searchPriority": "none"
+        },
+        {
+          "propertyName": "avatar",
+          "dataType": "string",
+          "fieldType": { "element": "input" },
+          "defaultValue": "asset://author/default-avatar.png"
+        }
+      ]
+    }
+  ]
+}

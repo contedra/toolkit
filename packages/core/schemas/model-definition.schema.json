@@ -2,56 +2,118 @@
   "$id": "https://cdn.jsdelivr.net/npm/@contedra/core@0.0.0-PLACEHOLDER/schemas/model-definition.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ModelDefinition",
-  "description": "A single Conteditor model definition (the Easy format).",
+  "description": "A single Conteditor model definition (the Easy format). Maps 1:1 to ModelDocSchema in CircleAround/conteditor functions/src/shared/record-type/model/schema.ts (with the document `id` from ModelSchema = intersect([{ id }, ModelDocSchema]) merged in).",
   "type": "object",
+  "additionalProperties": false,
   "required": ["id", "modelName", "properties"],
-  "additionalProperties": true,
   "properties": {
-    "id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "modelName": {
-      "type": "string",
-      "minLength": 1
-    },
+    "id": { "$ref": "#/$defs/ModelId" },
+    "modelName": { "$ref": "#/$defs/ModelName" },
     "properties": {
       "type": "array",
-      "items": {
-        "$ref": "#/$defs/ModelProperty"
-      }
+      "items": { "$ref": "#/$defs/Property" }
     }
   },
   "$defs": {
-    "ModelProperty": {
+    "ModelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "Document id used by Firestore. Mirrors ModelIdSchema (alphanumerics + `-` and `_`, up to 128 chars)."
+    },
+    "ModelName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Logical model name (also Firestore collection name). Mirrors ModelNameSchema: lowercase, starts with a letter, 3-64 chars."
+    },
+    "PropertyName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Property field name. Mirrors `pipe(string(), nonEmpty())` in valibot."
+    },
+    "Require": {
+      "description": "`require: optional(union([boolean(), string()]))` — boolean true marks the field required; a string carries an UI validation message and is treated as truthy.",
+      "anyOf": [
+        { "type": "boolean" },
+        { "type": "string" }
+      ]
+    },
+    "SearchPriority": {
+      "description": "Mirrors SearchPrioritySchema: 'high' | 'normal' | 'low' | 'none'.",
+      "enum": ["high", "normal", "low", "none"]
+    },
+    "FieldElement": {
+      "description": "Mirrors `union([literal('input'), literal('textarea'), literal('markdown'), literal('select')])` inside StringPropertySchema.fieldType.element.",
+      "enum": ["input", "textarea", "markdown", "select"]
+    },
+    "Property": {
+      "description": "Discriminated union over `dataType`. Mirrors ModelPropertySchema = union([StringProperty, DatetimeProperty, RelatedOneProperty, RelatedManyProperty]).",
+      "oneOf": [
+        { "$ref": "#/$defs/StringProperty" },
+        { "$ref": "#/$defs/DatetimeProperty" },
+        { "$ref": "#/$defs/RelatedOneProperty" },
+        { "$ref": "#/$defs/RelatedManyProperty" }
+      ]
+    },
+    "StringProperty": {
       "type": "object",
-      "required": ["propertyName", "dataType"],
-      "additionalProperties": true,
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "fieldType"],
       "properties": {
-        "propertyName": {
-          "type": "string",
-          "minLength": 1
-        },
-        "dataType": {
-          "type": "string",
-          "enum": ["string", "datetime", "relatedOne", "relatedMany"]
-        },
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "string" },
         "fieldType": {
           "type": "object",
-          "additionalProperties": true,
+          "required": ["element"],
           "properties": {
-            "element": {
-              "type": "string"
-            }
+            "element": { "$ref": "#/$defs/FieldElement" }
           }
         },
-        "require": {
-          "type": "boolean"
-        },
-        "defaultValue": {},
-        "relatedModel": {
-          "type": "string"
-        }
+        "require": { "$ref": "#/$defs/Require" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "regex": { "type": "string" },
+        "defaultValue": { "type": "string" },
+        "searchPriority": { "$ref": "#/$defs/SearchPriority" }
+      }
+    },
+    "DatetimeProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "datetime" },
+        "require": { "$ref": "#/$defs/Require" },
+        "defaultValue": { "type": "string" },
+        "onUpdate": { "type": "string" }
+      }
+    },
+    "RelatedOneProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "relatedModel"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "relatedOne" },
+        "relatedModel": { "$ref": "#/$defs/ModelId" },
+        "require": { "$ref": "#/$defs/Require" },
+        "defaultValue": { "type": "string" }
+      }
+    },
+    "RelatedManyProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "relatedModel"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "relatedMany" },
+        "relatedModel": { "$ref": "#/$defs/ModelId" },
+        "require": { "$ref": "#/$defs/Require" },
+        "defaultValue": { "type": "string" }
       }
     }
   }

@@ -7,6 +7,7 @@ describe("dataTypeToZod", () => {
     const prop: ModelProperty = {
       propertyName: "title",
       dataType: "string",
+      fieldType: { element: "input" },
       require: true,
     };
     const schema = dataTypeToZod(prop);
@@ -18,6 +19,7 @@ describe("dataTypeToZod", () => {
     const prop: ModelProperty = {
       propertyName: "subtitle",
       dataType: "string",
+      fieldType: { element: "input" },
     };
     const schema = dataTypeToZod(prop);
     expect(schema.parse(undefined)).toBeUndefined();
@@ -57,7 +59,7 @@ describe("dataTypeToZod", () => {
 
 describe("buildSchema", () => {
   const properties: ModelProperty[] = [
-    { propertyName: "title", dataType: "string", require: true },
+    { propertyName: "title", dataType: "string", fieldType: { element: "input" }, require: true },
     { propertyName: "content", dataType: "string", fieldType: { element: "markdown" } },
     { propertyName: "publishedAt", dataType: "datetime" },
     { propertyName: "category", dataType: "relatedOne", relatedModel: "categories" },

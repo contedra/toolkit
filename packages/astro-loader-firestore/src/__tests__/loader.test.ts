@@ -76,13 +76,21 @@ const mockModel = {
   id: "blog_posts",
   modelName: "blog_posts",
   properties: [
-    { propertyName: "title", dataType: "string" as const },
+    {
+      propertyName: "title",
+      dataType: "string" as const,
+      fieldType: { element: "input" as const },
+    },
     {
       propertyName: "content",
       dataType: "string" as const,
-      fieldType: { element: "markdown" },
+      fieldType: { element: "markdown" as const },
     },
-    { propertyName: "thumbnail", dataType: "string" as const },
+    {
+      propertyName: "thumbnail",
+      dataType: "string" as const,
+      fieldType: { element: "input" as const },
+    },
   ],
 };
 

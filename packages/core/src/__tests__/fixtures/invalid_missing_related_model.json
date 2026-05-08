@@ -1,0 +1,10 @@
+{
+  "id": "blog_posts",
+  "modelName": "blog_posts",
+  "properties": [
+    {
+      "propertyName": "category",
+      "dataType": "relatedOne"
+    }
+  ]
+}

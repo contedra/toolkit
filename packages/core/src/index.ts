@@ -17,5 +17,12 @@ export type {
   ModelManifest,
   ModelFile,
   ModelProperty,
+  StringProperty,
+  DatetimeProperty,
+  RelatedOneProperty,
+  RelatedManyProperty,
+  FieldElement,
+  SearchPriority,
+  RequireFlag,
   FirebaseConfig,
 } from "./types.js";

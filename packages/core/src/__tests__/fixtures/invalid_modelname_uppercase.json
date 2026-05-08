@@ -1,0 +1,11 @@
+{
+  "id": "blog_posts",
+  "modelName": "Foo",
+  "properties": [
+    {
+      "propertyName": "title",
+      "dataType": "string",
+      "fieldType": { "element": "input" }
+    }
+  ]
+}

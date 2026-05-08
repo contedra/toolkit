@@ -145,7 +145,7 @@ export function detectBodyField(
   }
 
   const markdownProp = model.properties.find(
-    (p) => p.fieldType?.element === "markdown"
+    (p) => p.dataType === "string" && p.fieldType.element === "markdown"
   );
   return markdownProp?.propertyName;
 }
