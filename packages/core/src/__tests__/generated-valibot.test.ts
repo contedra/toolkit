@@ -5,7 +5,7 @@ import { safeParse } from "valibot";
 import {
   ModelDefinitionSchema,
   ModelManifestSchema,
-} from "../../generated/1.0.0/index.js";
+} from "../../generated/1.1.0/index.js";
 
 const fixturesDir = resolve(import.meta.dirname, "fixtures");
 
@@ -120,5 +120,73 @@ describe("generated valibot — ModelManifestSchema", () => {
   it("rejects a bare ModelDefinition (not wrapped in `models`)", () => {
     const data = readJson(resolve(fixturesDir, "blog_posts.json"));
     expect(safeParse(ModelManifestSchema, data).success).toBe(false);
+  });
+
+  it("accepts a manifest containing asset properties", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_with_asset.json"));
+    const result = safeParse(ModelManifestSchema, data);
+    expect(
+      result.success,
+      result.success ? undefined : JSON.stringify(result.issues, null, 2)
+    ).toBe(true);
+  });
+});
+
+describe("generated valibot — AssetProperty", () => {
+  it("accepts an asset property fixture with mediaType: image", () => {
+    const data = readJson(resolve(fixturesDir, "asset_blog.json"));
+    const result = safeParse(ModelDefinitionSchema, data);
+    expect(
+      result.success,
+      result.success ? undefined : JSON.stringify(result.issues, null, 2)
+    ).toBe(true);
+  });
+
+  it("rejects an asset property without mediaType", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_missing_media_type.json")
+    );
+    expect(safeParse(ModelDefinitionSchema, data).success).toBe(false);
+  });
+
+  it("rejects an asset property with an unsupported mediaType value", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_unsupported_media_type.json")
+    );
+    expect(safeParse(ModelDefinitionSchema, data).success).toBe(false);
+  });
+
+  it("rejects an asset property carrying a defaultValue (additionalProperties: false)", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_with_default_value.json")
+    );
+    expect(safeParse(ModelDefinitionSchema, data).success).toBe(false);
+  });
+
+  it("accepts an optional asset property without `require`", () => {
+    const data = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        { propertyName: "thumbnail", dataType: "asset", mediaType: "image" },
+      ],
+    };
+    expect(safeParse(ModelDefinitionSchema, data).success).toBe(true);
+  });
+
+  it("rejects an asset property with an unknown extra key", () => {
+    const data = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        {
+          propertyName: "cover",
+          dataType: "asset",
+          mediaType: "image",
+          extra: "nope",
+        },
+      ],
+    };
+    expect(safeParse(ModelDefinitionSchema, data).success).toBe(false);
   });
 });

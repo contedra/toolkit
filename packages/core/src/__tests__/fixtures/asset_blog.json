@@ -1,0 +1,9 @@
+{
+  "id": "blog_with_assets",
+  "modelName": "blog_with_assets",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "cover", "dataType": "asset", "mediaType": "image", "require": true },
+    { "propertyName": "thumbnail", "dataType": "asset", "mediaType": "image" }
+  ]
+}

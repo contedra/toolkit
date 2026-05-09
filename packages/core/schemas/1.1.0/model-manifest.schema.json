@@ -1,0 +1,17 @@
+{
+  "$id": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ModelManifest",
+  "description": "Wrapper format that bundles multiple content model definitions in one file. Each entry under `models` references the `ModelDefinition` schema by `$ref` so the shape stays defined in exactly one place.",
+  "type": "object",
+  "required": ["models"],
+  "additionalProperties": true,
+  "properties": {
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-definition.schema.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "invalid",
+  "modelName": "invalid_asset",
+  "properties": [
+    { "propertyName": "cover", "dataType": "asset" }
+  ]
+}

@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
-const SCHEMA_VERSION = "1.0.0";
+const SCHEMA_VERSION = "1.1.0";
 const SCHEMAS_DIR = path.resolve(
   REPO_ROOT,
   `packages/core/schemas/${SCHEMA_VERSION}`
@@ -28,7 +28,7 @@ const OUT_DIR = path.resolve(
 // Maps external schema $id URLs to the symbol they should be imported as,
 // plus the relative module they live in.
 const EXTERNAL_REFS = {
-  "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.0.0/model-definition.schema.json":
+  [`https://cdn.jsdelivr.net/npm/@contedra/core/schemas/${SCHEMA_VERSION}/model-definition.schema.json`]:
     {
       symbol: "ModelDefinitionSchema",
       module: "./model-definition.valibot.js",
@@ -50,11 +50,13 @@ const TARGETS = [
       PropertyName: "PropertyNameSchema",
       SearchPriority: "SearchPrioritySchema",
       FieldElement: "FieldElementSchema",
+      MediaType: "MediaTypeSchema",
       Property: "ModelPropertySchema",
       StringProperty: "StringPropertySchema",
       DatetimeProperty: "DatetimePropertySchema",
       RelatedOneProperty: "RelatedOnePropertySchema",
       RelatedManyProperty: "RelatedManyPropertySchema",
+      AssetProperty: "AssetPropertySchema",
     },
   },
   {

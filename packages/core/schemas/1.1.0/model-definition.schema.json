@@ -1,0 +1,145 @@
+{
+  "$id": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-definition.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ModelDefinition",
+  "description": "A single content model definition (the Easy format). Describes the document id, the logical model name, and a list of typed properties used to render forms and persist data in headless-CMS-style backends.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "modelName", "properties"],
+  "properties": {
+    "id": { "$ref": "#/$defs/ModelId" },
+    "modelName": { "$ref": "#/$defs/ModelName" },
+    "properties": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Property" }
+    }
+  },
+  "$defs": {
+    "ModelId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "description": "Stable document id (alphanumerics plus `-` and `_`, up to 128 chars)."
+    },
+    "ModelName": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Logical model name, also used as the storage collection name. Lowercase, must start with a letter, 3-64 chars."
+    },
+    "PropertyName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Property field name. Must be a non-empty string."
+    },
+    "SearchPriority": {
+      "description": "Search-index weighting hint: 'high' | 'normal' | 'low' | 'none' ('none' opts the field out of search).",
+      "enum": ["high", "normal", "low", "none"]
+    },
+    "FieldElement": {
+      "description": "UI hint for how the string value should be edited: 'input' | 'textarea' | 'markdown' | 'select'.",
+      "enum": ["input", "textarea", "markdown", "select"]
+    },
+    "MediaType": {
+      "description": "Asset broad category, used to switch the editor / display UI. MVP supports `image` only; future minor versions will add `video` / `audio` / `file`. Not a MIME type.",
+      "enum": ["image"]
+    },
+    "Property": {
+      "description": "Discriminated union over `dataType`: a property is one of StringProperty | DatetimeProperty | RelatedOneProperty | RelatedManyProperty | AssetProperty.",
+      "oneOf": [
+        { "$ref": "#/$defs/StringProperty" },
+        { "$ref": "#/$defs/DatetimeProperty" },
+        { "$ref": "#/$defs/RelatedOneProperty" },
+        { "$ref": "#/$defs/RelatedManyProperty" },
+        { "$ref": "#/$defs/AssetProperty" }
+      ]
+    },
+    "StringProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "fieldType"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "string" },
+        "fieldType": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["element"],
+          "properties": {
+            "element": { "$ref": "#/$defs/FieldElement" }
+          }
+        },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "regex": { "type": "string" },
+        "defaultValue": { "type": "string" },
+        "searchPriority": { "$ref": "#/$defs/SearchPriority" }
+      }
+    },
+    "DatetimeProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "datetime" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
+        "defaultValue": { "type": "string" },
+        "onUpdate": { "type": "string" }
+      }
+    },
+    "RelatedOneProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "relatedModel"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "relatedOne" },
+        "relatedModel": { "$ref": "#/$defs/ModelId" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
+        "defaultValue": { "type": "string" }
+      }
+    },
+    "RelatedManyProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "relatedModel"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "relatedMany" },
+        "relatedModel": { "$ref": "#/$defs/ModelId" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        },
+        "defaultValue": { "type": "string" }
+      }
+    },
+    "AssetProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyName", "dataType", "mediaType"],
+      "properties": {
+        "propertyName": { "$ref": "#/$defs/PropertyName" },
+        "dataType": { "const": "asset" },
+        "mediaType": { "$ref": "#/$defs/MediaType" },
+        "require": {
+          "type": "boolean",
+          "description": "Whether this field is required."
+        }
+      }
+    }
+  }
+}

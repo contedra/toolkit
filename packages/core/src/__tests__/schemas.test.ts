@@ -249,4 +249,35 @@ describe("JSON Schemas — ajv validation", () => {
     );
     expect(validateManifest(data)).toBe(true);
   });
+
+  it("accepts an asset property fixture with mediaType: image", () => {
+    const data = readJson(resolve(fixturesDir, "asset_blog.json"));
+    expect(validateDefinition(data)).toBe(true);
+  });
+
+  it("accepts a manifest carrying asset properties", () => {
+    const data = readJson(resolve(fixturesDir, "manifest_with_asset.json"));
+    expect(validateManifest(data)).toBe(true);
+  });
+
+  it("rejects an asset property without mediaType", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_missing_media_type.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects an asset property with an unsupported mediaType value", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_unsupported_media_type.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
+
+  it("rejects an asset property carrying a defaultValue (additionalProperties: false)", () => {
+    const data = readJson(
+      resolve(fixturesDir, "invalid_asset_with_default_value.json")
+    );
+    expect(validateDefinition(data)).toBe(false);
+  });
 });

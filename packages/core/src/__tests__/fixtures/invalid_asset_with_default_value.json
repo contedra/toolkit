@@ -1,0 +1,12 @@
+{
+  "id": "invalid",
+  "modelName": "invalid_asset",
+  "properties": [
+    {
+      "propertyName": "cover",
+      "dataType": "asset",
+      "mediaType": "image",
+      "defaultValue": "asset://blog/abc/cover.jpg"
+    }
+  ]
+}

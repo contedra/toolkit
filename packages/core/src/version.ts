@@ -6,4 +6,4 @@
  * Bump alongside breaking changes to the schema; the value MUST equal
  * the directory name that ships the schemas in this release.
  */
-export const SCHEMA_VERSION = "1.0.0";
+export const SCHEMA_VERSION = "1.1.0";

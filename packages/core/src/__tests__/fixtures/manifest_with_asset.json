@@ -1,0 +1,21 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-manifest.schema.json",
+  "models": [
+    {
+      "id": "article",
+      "modelName": "article",
+      "properties": [
+        { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+        { "propertyName": "cover", "dataType": "asset", "mediaType": "image", "require": true }
+      ]
+    },
+    {
+      "id": "author",
+      "modelName": "author",
+      "properties": [
+        { "propertyName": "displayName", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+        { "propertyName": "avatar", "dataType": "asset", "mediaType": "image" }
+      ]
+    }
+  ]
+}

@@ -11,11 +11,13 @@
       "import": "./dist/src/index.js"
     },
     "./valibot": {
-      "types": "./dist/generated/1.0.0/index.d.ts",
-      "import": "./dist/generated/1.0.0/index.js"
+      "types": "./dist/generated/1.1.0/index.d.ts",
+      "import": "./dist/generated/1.1.0/index.js"
     },
     "./schemas/1.0.0/model-definition.schema.json": "./schemas/1.0.0/model-definition.schema.json",
     "./schemas/1.0.0/model-manifest.schema.json": "./schemas/1.0.0/model-manifest.schema.json",
+    "./schemas/1.1.0/model-definition.schema.json": "./schemas/1.1.0/model-definition.schema.json",
+    "./schemas/1.1.0/model-manifest.schema.json": "./schemas/1.1.0/model-manifest.schema.json",
     "./schemas/*": "./schemas/*"
   },
   "files": [

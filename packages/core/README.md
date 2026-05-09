@@ -61,7 +61,7 @@ Converts Firestore document data to proper JS types (Timestamps to Dates, etc.).
 
 ## Types
 
-contedra's content model definition format. The TypeScript interfaces below and the bundled JSON Schemas describe the same shape: a model is a list of typed properties (`dataType`-discriminated — `string` with a UI hint, `datetime`, `relatedOne`, `relatedMany`) intended for headless-CMS-style backends.
+contedra's content model definition format. The TypeScript interfaces below and the bundled JSON Schemas describe the same shape: a model is a list of typed properties (`dataType`-discriminated — `string` with a UI hint, `datetime`, `relatedOne`, `relatedMany`, `asset`) intended for headless-CMS-style backends.
 
 ```typescript
 interface ModelDefinition {
@@ -80,10 +80,12 @@ type ModelProperty =
   | StringProperty
   | DatetimeProperty
   | RelatedOneProperty
-  | RelatedManyProperty;
+  | RelatedManyProperty
+  | AssetProperty;
 
 type FieldElement = "input" | "textarea" | "markdown" | "select";
 type SearchPriority = "high" | "normal" | "low" | "none";
+type MediaType = "image"; // MVP — minor versions will add `video` / `audio` / `file`
 
 interface StringProperty {
   propertyName: string;
@@ -121,6 +123,15 @@ interface RelatedManyProperty {
   defaultValue?: string;
 }
 
+interface AssetProperty {
+  propertyName: string;
+  dataType: "asset";
+  mediaType: MediaType; // required, MVP: "image" only
+  require?: boolean;
+  // No `defaultValue`: an asset URI is contentId-scoped and cannot be
+  // hard-coded in the model definition.
+}
+
 interface FirebaseConfig {
   projectId: string;
   credential?: string; // Path to service account JSON
@@ -135,38 +146,83 @@ interface FirebaseConfig {
 | `"datetime"` | `propertyName`, `dataType` | `require`, `defaultValue`, `onUpdate` |
 | `"relatedOne"` | `propertyName`, `dataType`, `relatedModel` (ModelId) | `require`, `defaultValue` |
 | `"relatedMany"` | `propertyName`, `dataType`, `relatedModel` (ModelId) | `require`, `defaultValue` |
+| `"asset"` | `propertyName`, `dataType`, `mediaType` (MediaType) | `require` |
 
 Each property variant is `additionalProperties: false` in the JSON Schema so accidental keys are caught at validation time.
+
+### `asset` dataType — references to Firebase Storage objects
+
+An `asset` property holds a logical reference to a Firebase Storage object, parallel to how `relatedOne` / `relatedMany` reference documents in another collection. The persisted value is an `asset://` URI:
+
+```text
+asset://{modelName}/{contentId}/{fileId}
+```
+
+Example value: `asset://blog/abc123/cover.jpg`. The URI is logical, not physical — bucket name or storage path can change without rewriting the stored value; consumer-side resolvers (e.g. `resolveAssetUriToUrl`, `parseAssetUri`) do the lookup.
+
+Example model snippet:
+
+```json
+{
+  "id": "blog",
+  "modelName": "blog",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "cover", "dataType": "asset", "mediaType": "image", "require": true },
+    { "propertyName": "thumbnail", "dataType": "asset", "mediaType": "image" }
+  ]
+}
+```
+
+#### `mediaType` is a UI-branch enum, not a MIME type
+
+`mediaType` is **required** on every asset property and switches the editor / display UI (e.g. an image picker + preview vs. a video player). It is intentionally a coarse category, not a MIME type — keeping it small is what makes the picker UI tractable in a CMS surface.
+
+The MVP enum has a single value, `"image"`. Future minor versions of the schema will extend the enum with values like `"video"`, `"audio"`, and `"file"` as the corresponding pickers ship; consumers should treat unknown values as a hard validation error rather than silently downgrading.
+
+#### Why `defaultValue` is intentionally absent
+
+`asset` properties do not carry a `defaultValue`. An `asset://` URI is content-scoped (the `contentId` segment changes per document), so there is no useful value to hard-code in the model definition. Validators reject any `defaultValue` key on an asset property via `additionalProperties: false`.
 
 ## JSON Schemas
 
 The package ships JSON Schemas (Draft 2020-12) for validating model files in editors and CI. Each release of the schemas lives under a semver directory; the current schema version is exported as `SCHEMA_VERSION` from `@contedra/core`:
 
 ```text
-@contedra/core/schemas/1.0.0/model-definition.schema.json   # single ModelDefinition (Easy format)
-@contedra/core/schemas/1.0.0/model-manifest.schema.json     # ModelManifest (multi-model format)
+@contedra/core/schemas/1.1.0/model-definition.schema.json   # single ModelDefinition (Easy format)
+@contedra/core/schemas/1.1.0/model-manifest.schema.json     # ModelManifest (multi-model format)
 ```
+
+Older schema versions are kept alongside (`schemas/1.0.0/...`) so files pinned to an earlier `$schema` URL keep validating; the `@contedra/core/valibot` subpath always resolves to the current `SCHEMA_VERSION`.
 
 They are exposed through both `package.json` `exports` (Node-side `import`) and the npm tarball. **jsdelivr** automatically serves any file inside an npm package, so no separate hosting is needed.
 
 `model-manifest.schema.json` keeps its `models[]` shape in sync with `model-definition.schema.json` by referencing it through a top-level `$ref` (the same versioned jsdelivr URL pattern as `$id`), so the `ModelDefinition` shape lives in exactly one place.
+
+### Schema 1.1.0 — what changed
+
+`1.1.0` is purely additive over `1.0.0`:
+
+- New `$defs.MediaType` (enum, MVP value `"image"`).
+- New `$defs.AssetProperty` and a fifth `Property.oneOf` branch for `dataType: "asset"`.
+- Existing dataTypes (`string`, `datetime`, `relatedOne`, `relatedMany`) and their fields are unchanged. Files written against `1.0.0` continue to validate against `1.1.0`.
 
 ### URL convention — schema version pinned, package version free
 
 Each schema file's `$id` is a jsdelivr URL whose path carries the **schema** version (not the npm package version). jsdelivr resolves `@contedra/core` to whatever release is current, and as long as `@contedra/core` keeps shipping `schemas/<SCHEMA_VERSION>/...`, the URL stays stable forever:
 
 ```text
-https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.0.0/model-manifest.schema.json
+https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-manifest.schema.json
 ```
 
-A breaking schema change bumps `SCHEMA_VERSION` and ships under a fresh URL (`schemas/2.0.0/...`); existing files keep validating against the old URL.
+A breaking schema change bumps `SCHEMA_VERSION` and ships under a fresh URL (`schemas/2.0.0/...`); existing files keep validating against the old URL. Additive changes (e.g. the `1.0.0` → `1.1.0` AssetProperty addition) ship under a new minor segment so consumers can opt in by changing the URL.
 
 ### Reference a schema from your model file
 
 ```jsonc
 // my-models.json
 {
-  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.0.0/model-manifest.schema.json",
+  "$schema": "https://cdn.jsdelivr.net/npm/@contedra/core/schemas/1.1.0/model-manifest.schema.json",
   "models": [
     { "id": "...", "modelName": "blog", "properties": [/* ... */] }
   ]
