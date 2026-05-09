@@ -1,0 +1,11 @@
+{
+  "id": "blog_posts_asset",
+  "modelName": "blog_posts_asset",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "cover", "dataType": "asset", "mediaType": "image", "require": true },
+    { "propertyName": "thumbnail", "dataType": "asset", "mediaType": "image" },
+    { "propertyName": "content", "dataType": "string", "fieldType": { "element": "markdown" } },
+    { "propertyName": "publishedAt", "dataType": "datetime" }
+  ]
+}

@@ -22,7 +22,9 @@ export type {
   DatetimeProperty,
   RelatedOneProperty,
   RelatedManyProperty,
+  AssetProperty,
   FieldElement,
   SearchPriority,
+  MediaType,
   FirebaseConfig,
 } from "./types.js";

@@ -86,6 +86,8 @@ function convertValue(
         });
       }
       return [];
+    case "asset":
+      return typeof value === "string" ? value : String(value);
     default:
       return value;
   }

@@ -9,6 +9,12 @@ export type FieldElement = "input" | "textarea" | "markdown" | "select";
 
 export type SearchPriority = "high" | "normal" | "low" | "none";
 
+/**
+ * Asset broad category. Matches MediaType in the JSON Schema 1.1.0 / valibot.
+ * MVP supports `image` only; future minor versions will add `video` / `audio` / `file`.
+ */
+export type MediaType = "image";
+
 export interface StringProperty {
   propertyName: string;
   dataType: "string";
@@ -45,11 +51,19 @@ export interface RelatedManyProperty {
   defaultValue?: string;
 }
 
+export interface AssetProperty {
+  propertyName: string;
+  dataType: "asset";
+  mediaType: MediaType;
+  require?: boolean;
+}
+
 export type ModelProperty =
   | StringProperty
   | DatetimeProperty
   | RelatedOneProperty
-  | RelatedManyProperty;
+  | RelatedManyProperty
+  | AssetProperty;
 
 export interface ModelDefinition {
   id: string;

@@ -14,6 +14,7 @@ import {
   assetStoragePath,
   assetUri,
   replaceImageRefs,
+  resolveImageFieldNames,
 } from "./images.js";
 
 /**
@@ -92,11 +93,26 @@ export async function mdImporter(
         processedBody = replaceImageRefs(body, replacements);
       }
 
-      // Process frontmatter image fields
-      if (!config.noImages && bucket && config.imageFields?.length) {
-        for (const fieldName of config.imageFields) {
+      // Process frontmatter image fields. Sources merge: asset dataType
+      // (auto-recognized) + explicit --image-fields (legacy compat).
+      if (!config.noImages && bucket) {
+        const imageFieldNames = resolveImageFieldNames(
+          model,
+          config.imageFields
+        );
+
+        for (const fieldName of imageFieldNames) {
           const value = data[fieldName];
           if (typeof value !== "string" || !value) continue;
+          // Skip values that already are URIs (asset:// or http(s)://) — they're
+          // already-resolved references and should pass through unchanged.
+          if (
+            value.startsWith("asset://") ||
+            value.startsWith("http://") ||
+            value.startsWith("https://")
+          ) {
+            continue;
+          }
 
           const fileName = path.basename(value);
           const storagePath = assetStoragePath(

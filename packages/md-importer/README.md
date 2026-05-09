@@ -32,7 +32,7 @@ npx @contedra/md-importer \
 | `--storage-bucket <name>` | No* | Firebase Storage bucket name (e.g. `your-project.firebasestorage.app`) |
 | `--no-images` | No | Skip image extraction, upload, and URL replacement |
 | `--image-base-dir <path>` | No | Directory for resolving absolute image paths (e.g. `./public`) |
-| `--image-fields <fields>` | No | Comma-separated frontmatter field names containing image paths (e.g. `heroImage,cover`) |
+| `--image-fields <fields>` | No | Comma-separated frontmatter field names containing image paths (e.g. `heroImage,cover`). Only needed for `dataType: "string"` fields; `dataType: "asset"` fields are auto-recognized. |
 | `--field-mapping <json>` | No | JSON mapping frontmatter keys to model properties |
 
 ### Importing from a multi-model manifest file
@@ -125,6 +125,48 @@ Images referenced in Markdown (e.g., `![alt](./images/photo.png)`) are:
 4. Replaced in the markdown body with `asset://` URIs
 
 External URLs (`http://`, `https://`) and `asset://` URIs are skipped.
+
+## Frontmatter Image Fields
+
+Two paths are supported for converting frontmatter image paths into `asset://` URIs:
+
+### 1. `dataType: "asset"` (recommended, auto-recognized)
+
+If a model property is declared as `dataType: "asset"` with `mediaType: "image"`, the importer **automatically uploads** the value (a relative or absolute path) and rewrites the frontmatter field to an `asset://` URI. No `--image-fields` flag needed.
+
+```json
+// model.json
+{
+  "id": "blog_posts",
+  "modelName": "blog_posts",
+  "properties": [
+    { "propertyName": "title", "dataType": "string", "fieldType": { "element": "input" }, "require": true },
+    { "propertyName": "cover", "dataType": "asset", "mediaType": "image", "require": true },
+    { "propertyName": "thumbnail", "dataType": "asset", "mediaType": "image" }
+  ]
+}
+```
+
+```yaml
+# post.md frontmatter
+title: Hello
+cover: ./images/cover.png
+thumbnail: ./images/thumb.png
+```
+
+After import: `cover` and `thumbnail` are stored as `asset://blog_posts/{docId}/cover.png` and `asset://blog_posts/{docId}/thumb.png`. Values that are already `asset://`, `http://`, or `https://` URIs are passed through unchanged (idempotent re-import).
+
+> **MVP note:** only `mediaType: "image"` triggers upload today. Future schema versions will add `video` / `audio` / `file`; until then, those values are rejected by `@contedra/core` schema validation.
+
+### 2. `--image-fields` (legacy, for `dataType: "string"` fields)
+
+For models that store image paths in plain `string`-typed fields, pass `--image-fields` to opt-in field-by-field. This path remains available for backward compatibility.
+
+```bash
+npx @contedra/md-importer ... --image-fields heroImage,cover
+```
+
+The two paths can be combined; if a field is named in both an `asset` property and `--image-fields`, it is uploaded once.
 
 ## License
 

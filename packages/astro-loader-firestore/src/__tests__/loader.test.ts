@@ -62,7 +62,9 @@ vi.mock("node:fs", () => ({
 import { contedraLoader } from "../loader.js";
 import {
   loadModel,
+  resolveModel,
   detectBodyField,
+  buildSchema,
   initFirestore,
   fetchDocuments,
   transformDocumentData,
@@ -338,6 +340,93 @@ describe("contedraLoader — modelName forwarding", () => {
       "./models/blog_posts.json",
       undefined
     );
+  });
+});
+
+describe("contedraLoader with asset dataType fields", () => {
+  const assetModel = {
+    id: "blog_with_asset",
+    modelName: "blog_with_asset",
+    properties: [
+      {
+        propertyName: "title",
+        dataType: "string" as const,
+        fieldType: { element: "input" as const },
+      },
+      {
+        propertyName: "cover",
+        dataType: "asset" as const,
+        mediaType: "image" as const,
+        require: true,
+      },
+      {
+        propertyName: "content",
+        dataType: "string" as const,
+        fieldType: { element: "markdown" as const },
+      },
+    ],
+  };
+
+  const baseConfig: ContedraLoaderConfig = {
+    modelFile: "./models/blog_with_asset.json",
+    firebaseConfig: {
+      projectId: "test-project",
+      storageBucket: "test-project.firebasestorage.app",
+    },
+    assets: { mode: "url" },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(loadModel).mockResolvedValue(assetModel);
+    vi.mocked(detectBodyField).mockReturnValue("content");
+    vi.mocked(initFirestore).mockReturnValue({} as any);
+    vi.mocked(resolveAssetUriToUrl).mockImplementation(
+      (uri, bucket) =>
+        `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/assets%2F${uri.replace("asset://", "").replace(/\//g, "%2F")}?alt=media`
+    );
+  });
+
+  it("resolves asset:// URIs in asset dataType fields (url mode)", async () => {
+    vi.mocked(fetchDocuments).mockResolvedValue([
+      {
+        id: "post-1",
+        data: {
+          title: "Hello",
+          cover: "asset://blog_with_asset/post-1/cover.png",
+          content: "# Body",
+        },
+      },
+    ]);
+    vi.mocked(transformDocumentData).mockReturnValue({
+      data: {
+        title: "Hello",
+        cover: "asset://blog_with_asset/post-1/cover.png",
+      },
+      body: "# Body",
+    });
+
+    const loader = contedraLoader(baseConfig);
+    const ctx = createMockContext();
+    await loader.load(ctx as any);
+
+    const setCall = ctx.store.set.mock.calls[0][0];
+    expect(setCall.data.cover).toContain("firebasestorage.googleapis.com");
+    expect(setCall.data.cover).not.toContain("asset://");
+  });
+
+  it("schema() forwards asset properties to buildSchema (asset → string handled by core)", async () => {
+    vi.mocked(resolveModel).mockReturnValue(assetModel);
+    vi.mocked(detectBodyField).mockReturnValue("content");
+    const fakeSchema = { _kind: "zod-object" };
+    vi.mocked(buildSchema).mockReturnValue(fakeSchema as any);
+    const fs = await import("node:fs");
+    vi.mocked(fs.readFileSync).mockReturnValue("{}");
+
+    const loader = contedraLoader(baseConfig);
+    const schema = loader.schema!();
+    expect(buildSchema).toHaveBeenCalledWith(assetModel.properties, "content");
+    expect(schema).toBe(fakeSchema);
   });
 });
 
