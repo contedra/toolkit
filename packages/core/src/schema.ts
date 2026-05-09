@@ -17,6 +17,9 @@ export function dataTypeToZod(property: ModelProperty): ZodTypeAny {
     case "relatedMany":
       schema = z.array(z.string());
       break;
+    case "asset":
+      schema = z.string();
+      break;
     default:
       schema = z.unknown();
   }

@@ -1,11 +1,13 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
+import type { ModelDefinition } from "@contedra/core";
 import {
   extractImageRefs,
   assetStoragePath,
   assetUri,
   replaceImageRefs,
   defaultResolveImage,
+  resolveImageFieldNames,
 } from "../images.js";
 
 describe("extractImageRefs", () => {
@@ -111,6 +113,109 @@ describe("replaceImageRefs", () => {
     expect(result).toBe(
       "text ![hero](asset://blog/post-1/hero.png) more ![diag](asset://blog/post-1/diag.jpg) end"
     );
+  });
+});
+
+describe("resolveImageFieldNames", () => {
+  const baseProps: ModelDefinition["properties"] = [
+    {
+      propertyName: "title",
+      dataType: "string",
+      fieldType: { element: "input" },
+      require: true,
+    },
+    {
+      propertyName: "content",
+      dataType: "string",
+      fieldType: { element: "markdown" },
+    },
+  ];
+
+  it("auto-recognizes asset dataType fields with mediaType image", () => {
+    const model: ModelDefinition = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        ...baseProps,
+        {
+          propertyName: "cover",
+          dataType: "asset",
+          mediaType: "image",
+          require: true,
+        },
+        { propertyName: "thumb", dataType: "asset", mediaType: "image" },
+      ],
+    };
+    const names = resolveImageFieldNames(model);
+    expect([...names].sort()).toEqual(["cover", "thumb"]);
+  });
+
+  it("merges asset auto-recognition with legacy imageFields", () => {
+    const model: ModelDefinition = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        ...baseProps,
+        {
+          propertyName: "cover",
+          dataType: "asset",
+          mediaType: "image",
+          require: true,
+        },
+        {
+          propertyName: "legacyHero",
+          dataType: "string",
+          fieldType: { element: "input" },
+        },
+      ],
+    };
+    const names = resolveImageFieldNames(model, ["legacyHero"]);
+    expect([...names].sort()).toEqual(["cover", "legacyHero"]);
+  });
+
+  it("dedupes when imageFields names an asset field already auto-recognized", () => {
+    const model: ModelDefinition = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        ...baseProps,
+        {
+          propertyName: "cover",
+          dataType: "asset",
+          mediaType: "image",
+          require: true,
+        },
+      ],
+    };
+    const names = resolveImageFieldNames(model, ["cover"]);
+    expect(names.size).toBe(1);
+    expect(names.has("cover")).toBe(true);
+  });
+
+  it("returns the legacy fields verbatim when there are no asset properties", () => {
+    const model: ModelDefinition = {
+      id: "blog",
+      modelName: "blog",
+      properties: [
+        ...baseProps,
+        {
+          propertyName: "thumbnail",
+          dataType: "string",
+          fieldType: { element: "input" },
+        },
+      ],
+    };
+    const names = resolveImageFieldNames(model, ["thumbnail"]);
+    expect([...names]).toEqual(["thumbnail"]);
+  });
+
+  it("returns an empty set when no asset fields and no imageFields", () => {
+    const model: ModelDefinition = {
+      id: "blog",
+      modelName: "blog",
+      properties: baseProps,
+    };
+    expect(resolveImageFieldNames(model).size).toBe(0);
   });
 });
 

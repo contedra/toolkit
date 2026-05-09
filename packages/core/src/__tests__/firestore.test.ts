@@ -12,6 +12,7 @@ const model: ModelDefinition = {
     { propertyName: "publishedAt", dataType: "datetime" },
     { propertyName: "category", dataType: "relatedOne", relatedModel: "categories" },
     { propertyName: "tags", dataType: "relatedMany", relatedModel: "tags" },
+    { propertyName: "cover", dataType: "asset", mediaType: "image" },
   ],
 };
 
@@ -95,5 +96,18 @@ describe("transformDocumentData", () => {
     expect(result.body).toBeUndefined();
     expect(result.data.content).toBe("# My Post");
     expect(result.data.title).toBe("Hello");
+  });
+
+  it("should pass through asset:// URI strings for asset fields", () => {
+    const result = transformDocumentData(
+      {
+        title: "Hello",
+        cover: "asset://blog_posts/post-1/cover.png",
+      },
+      model,
+      "content"
+    );
+
+    expect(result.data.cover).toBe("asset://blog_posts/post-1/cover.png");
   });
 });

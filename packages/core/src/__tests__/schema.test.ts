@@ -55,6 +55,33 @@ describe("dataTypeToZod", () => {
     const schema = dataTypeToZod(prop);
     expect(schema.parse(["tag-1", "tag-2"])).toEqual(["tag-1", "tag-2"]);
   });
+
+  it("should convert asset to z.string() (asset:// URI carried as string)", () => {
+    const prop: ModelProperty = {
+      propertyName: "cover",
+      dataType: "asset",
+      mediaType: "image",
+      require: true,
+    };
+    const schema = dataTypeToZod(prop);
+    expect(schema.parse("asset://blog/post-1/cover.png")).toBe(
+      "asset://blog/post-1/cover.png"
+    );
+    expect(() => schema.parse(undefined)).toThrow();
+  });
+
+  it("should make optional asset fields accept undefined", () => {
+    const prop: ModelProperty = {
+      propertyName: "thumbnail",
+      dataType: "asset",
+      mediaType: "image",
+    };
+    const schema = dataTypeToZod(prop);
+    expect(schema.parse(undefined)).toBeUndefined();
+    expect(schema.parse("asset://blog/post-1/thumb.png")).toBe(
+      "asset://blog/post-1/thumb.png"
+    );
+  });
 });
 
 describe("buildSchema", () => {

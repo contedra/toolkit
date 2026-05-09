@@ -1,8 +1,34 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import type { ModelDefinition } from "@contedra/core";
 
 /** Regex matching Markdown image syntax: ![alt](path) or ![alt](path "title") */
 const IMAGE_REGEX = /!\[([^\]]*)\]\((\S+?)(?:\s+"[^"]*")?\)/g;
+
+/**
+ * Compute the set of frontmatter field names whose values should be uploaded
+ * as image assets. Two sources merge:
+ *   1. asset dataType properties with mediaType "image" (auto-recognized)
+ *   2. explicit `imageFields` (legacy/backward-compat for string-typed fields)
+ *
+ * Other mediaType values (when added: video / audio / file) are intentionally
+ * skipped here — they need their own resolver branch in importer.ts.
+ */
+export function resolveImageFieldNames(
+  model: ModelDefinition,
+  imageFields?: string[]
+): Set<string> {
+  const names = new Set<string>();
+  for (const prop of model.properties) {
+    if (prop.dataType === "asset" && prop.mediaType === "image") {
+      names.add(prop.propertyName);
+    }
+  }
+  if (imageFields?.length) {
+    for (const f of imageFields) names.add(f);
+  }
+  return names;
+}
 
 export interface ImageRef {
   /** Full match string in the Markdown */

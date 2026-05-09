@@ -364,4 +364,118 @@ Body text.
 
     await rm(fmDir, { recursive: true, force: true });
   });
+
+  it("auto-recognizes asset dataType fields without imageFields", async () => {
+    const assetDir = path.join(tmpDir, "_asset_auto");
+    await mkdir(assetDir, { recursive: true });
+    await mkdir(path.join(assetDir, "images"), { recursive: true });
+    await writeFile(
+      path.join(assetDir, "asset-post.md"),
+      `---
+title: Asset DataType Post
+cover: ./images/cover.png
+thumbnail: ./images/thumb.png
+publishedAt: 2024-05-01
+---
+
+Body with embedded image: ![inline](./images/inline.png)
+`
+    );
+    await writeFile(
+      path.join(assetDir, "images", "cover.png"),
+      Buffer.from("fake-cover-bytes")
+    );
+    await writeFile(
+      path.join(assetDir, "images", "thumb.png"),
+      Buffer.from("fake-thumb-bytes")
+    );
+    await writeFile(
+      path.join(assetDir, "images", "inline.png"),
+      Buffer.from("fake-inline-bytes")
+    );
+
+    // Note: imageFields is NOT passed; asset dataType should auto-trigger upload.
+    const result = await mdImporter({
+      mdDir: assetDir,
+      modelFile: path.join(FIXTURES, "blog_posts_with_asset.json"),
+      firebaseConfig: { projectId: PROJECT_ID, storageBucket: STORAGE_BUCKET },
+      collection: "asset_auto_posts",
+    });
+
+    expect(result.errors).toEqual([]);
+    expect(result.imported).toHaveLength(1);
+
+    const firestore = initFirestore({ projectId: PROJECT_ID });
+    const doc = await firestore
+      .collection("asset_auto_posts")
+      .doc("asset-post")
+      .get();
+    expect(doc.exists).toBe(true);
+
+    const data = doc.data()!;
+    expect(data["cover"]).toBe(
+      "asset://blog_posts_asset/asset-post/cover.png"
+    );
+    expect(data["thumbnail"]).toBe(
+      "asset://blog_posts_asset/asset-post/thumb.png"
+    );
+    expect(data["title"]).toBe("Asset DataType Post");
+
+    // Body inline image is still processed by markdown extraction.
+    const content = data["content"] as string;
+    expect(content).toContain(
+      "asset://blog_posts_asset/asset-post/inline.png"
+    );
+
+    // Verify physical uploads in Storage.
+    const appName = `contedra-${PROJECT_ID}`;
+    const app = getApps().find((a) => a.name === appName)!;
+    const bucket = getStorage(app).bucket();
+    for (const fileName of ["cover.png", "thumb.png", "inline.png"]) {
+      const [exists] = await bucket
+        .file(`assets/blog_posts_asset/asset-post/${fileName}`)
+        .exists();
+      expect(exists, `${fileName} should be uploaded`).toBe(true);
+    }
+
+    await rm(assetDir, { recursive: true, force: true });
+  });
+
+  it("skips asset:// URIs already present in frontmatter (idempotent re-import)", async () => {
+    const assetDir = path.join(tmpDir, "_asset_already_uri");
+    await mkdir(assetDir, { recursive: true });
+    await writeFile(
+      path.join(assetDir, "already-uri.md"),
+      `---
+title: Already URI
+cover: asset://existing/already-uri/cover.png
+publishedAt: 2024-05-02
+---
+
+Body.
+`
+    );
+
+    const result = await mdImporter({
+      mdDir: assetDir,
+      modelFile: path.join(FIXTURES, "blog_posts_with_asset.json"),
+      firebaseConfig: { projectId: PROJECT_ID, storageBucket: STORAGE_BUCKET },
+      collection: "asset_already_uri",
+    });
+
+    expect(result.errors).toEqual([]);
+    expect(result.imported).toHaveLength(1);
+
+    const firestore = initFirestore({ projectId: PROJECT_ID });
+    const doc = await firestore
+      .collection("asset_already_uri")
+      .doc("already-uri")
+      .get();
+    // Pre-existing asset:// URI is preserved verbatim.
+    expect(doc.data()!["cover"]).toBe(
+      "asset://existing/already-uri/cover.png"
+    );
+
+    await rm(assetDir, { recursive: true, force: true });
+  });
 });

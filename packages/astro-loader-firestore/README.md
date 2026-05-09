@@ -160,6 +160,18 @@ assets: { mode: "url" }
 | `datetime` | `z.coerce.date()` | Firestore Timestamp converted to Date |
 | `relatedOne` | `z.string()` | Referenced document ID |
 | `relatedMany` | `z.array(z.string())` | Array of referenced document IDs |
+| `asset` | `z.string()` | Resolved asset URL string (see [Asset Resolution](#asset-resolution)). MVP supports `mediaType: "image"`; future schema versions will add `video` / `audio` / `file`. |
+
+## `asset` dataType vs. legacy `string` + `--image-fields`
+
+Two ways exist to carry image references through the pipeline. Both end up resolved by the loader transparently — `getCollection().data.cover` is a plain URL string in templates regardless of which path was used.
+
+| Source | Model declaration | md-importer side | Loader side |
+|--------|-------------------|------------------|-------------|
+| **Recommended** | `dataType: "asset"`, `mediaType: "image"` | Frontmatter value is auto-uploaded — no `--image-fields` needed | `asset://` URI in Firestore is auto-resolved per `assets` config |
+| Legacy / backward-compat | `dataType: "string"` | Pass `--image-fields cover,…` to upload | Same — the loader resolves any `asset://` URI it encounters in string values |
+
+The loader does not branch on `dataType` for asset resolution — it walks every string value in the document and replaces `asset://` URIs. So both columns behave identically downstream once the data lands in Firestore. The only practical difference is whether md-importer auto-uploads (asset dataType) or requires opt-in (`--image-fields`).
 
 ## Resolving References
 
