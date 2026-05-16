@@ -9,3 +9,16 @@ minimumReleaseAge: 10080
 
 # Fail install if the active pnpm version does not satisfy engines.pnpm.
 engineStrict: true
+
+# pnpm v11 fails the install (ERR_PNPM_IGNORED_BUILDS) when a dependency
+# ships a build/postinstall script that is not explicitly listed here.
+# These are kept disabled: the build/test pipeline already passed without
+# them under pnpm 10, and not running unreviewed postinstall scripts is
+# consistent with the supply-chain hardening in this file. A new dependency
+# that adds a build script will fail CI until it is reviewed and listed.
+allowBuilds:
+  '@firebase/util': false
+  esbuild: false
+  protobufjs: false
+  re2: false
+  sharp: false

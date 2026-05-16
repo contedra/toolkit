@@ -242,9 +242,9 @@ window elapses, override the gate **per-command** without editing the config
 files:
 
 ```bash
-pnpm add <pkg> --config.minimumReleaseAge=0
+pnpm add <pkg> --config.minimum-release-age=0
 # or for a full install
-pnpm install --config.minimumReleaseAge=0
+pnpm install --config.minimum-release-age=0
 ```
 
 Do not change `pnpm-workspace.yaml` for this. When bypassing, record the
