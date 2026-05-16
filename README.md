@@ -189,6 +189,23 @@ A demo Astro project is included in the [`demo/`](./demo) directory. It uses the
 
 ## Development
 
+### Prerequisites
+
+This repo enforces a minimum pnpm version so that the supply-chain age gate
+(see below) is always active. The required version is pinned via the
+`packageManager` and `engines.pnpm` fields in `package.json`.
+
+```bash
+# Use the pinned pnpm version automatically (recommended)
+corepack enable
+
+# Verify the active version satisfies the requirement (>= 11.0.0)
+pnpm --version
+```
+
+With `engineStrict` enabled, `pnpm install` fails if the active pnpm version
+does not satisfy `engines.pnpm`.
+
 ```bash
 # Install dependencies
 pnpm install
@@ -202,6 +219,37 @@ pnpm test
 # Lint
 pnpm lint
 ```
+
+### Supply chain age gate
+
+To reduce the risk of installing a compromised package right after a malicious
+release, `pnpm-workspace.yaml` sets `minimumReleaseAge: 10080` (minutes = 7
+days). pnpm will not install any dependency version — including transitive
+ones — until it has been public for that long. Most malicious releases are
+detected and removed from the registry within hours.
+
+Verify the setting is active:
+
+```bash
+pnpm config get minimumReleaseAge   # -> 10080
+pnpm config get engineStrict        # -> true
+```
+
+#### Temporarily bypassing the gate (security fixes)
+
+When a CVE fix has just been published and you must take it before the age
+window elapses, override the gate **per-command** without editing the config
+files:
+
+```bash
+pnpm add <pkg> --config.minimumReleaseAge=0
+# or for a full install
+pnpm install --config.minimumReleaseAge=0
+```
+
+Do not change `pnpm-workspace.yaml` for this. When bypassing, record the
+reason (e.g. the CVE number) in the PR and commit message so reviewers know
+why a fresh package version was pulled in.
 
 ## Versioning
 
