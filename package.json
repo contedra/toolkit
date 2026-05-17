@@ -8,7 +8,10 @@
     "version:minor": "pnpm -r exec -- npm version minor --no-git-tag-version && node -e \"const p=require('./packages/core/package.json'); console.log('v'+p.version)\"",
     "version:major": "pnpm -r exec -- npm version major --no-git-tag-version && node -e \"const p=require('./packages/core/package.json'); console.log('v'+p.version)\""
   },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",
+  "engines": {
+    "pnpm": ">=11.0.0"
+  },
   "devDependencies": {
     "firebase-tools": "^13.35.1"
   }
