@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Timestamp } from "firebase-admin/firestore";
 import { transformDocumentData } from "../firestore.js";
+import { buildSchema } from "../schema.js";
 import type { ModelDefinition } from "../types.js";
 
 const model: ModelDefinition = {
@@ -109,5 +110,44 @@ describe("transformDocumentData", () => {
     );
 
     expect(result.data.cover).toBe("asset://blog_posts/post-1/cover.png");
+  });
+
+  describe("empty datetime values", () => {
+    // An empty string has no meaning as a date. Treating it as "no value"
+    // prevents z.coerce.date() from producing "Invalid date" during the build.
+    it("should treat an empty string datetime as undefined", () => {
+      const result = transformDocumentData(
+        { title: "Hello", publishedAt: "" },
+        model,
+        "content"
+      );
+
+      expect(result.data.publishedAt).toBeUndefined();
+    });
+
+    it("should pass the generated schema when an optional datetime is an empty string", () => {
+      const { data } = transformDocumentData(
+        { title: "Hello", publishedAt: "" },
+        model,
+        "content"
+      );
+      const schema = buildSchema(model.properties, "content");
+
+      const parsed = schema.safeParse(data);
+
+      expect(parsed.success).toBe(true);
+    });
+
+    it("should keep an empty string for non-datetime fields", () => {
+      const result = transformDocumentData(
+        { title: "", category: "", cover: "" },
+        model,
+        "content"
+      );
+
+      expect(result.data.title).toBe("");
+      expect(result.data.category).toBe("");
+      expect(result.data.cover).toBe("");
+    });
   });
 });
