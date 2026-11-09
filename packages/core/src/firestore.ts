@@ -70,6 +70,9 @@ function convertValue(
       if (value instanceof Timestamp) {
         return value.toDate();
       }
+      // An empty string carries no date information. Treat it as "no value"
+      // so that z.coerce.date() does not fail with "Invalid date".
+      if (value === "") return undefined;
       return value;
     case "relatedOne":
       if (typeof value === "object" && value !== null && "id" in value) {
