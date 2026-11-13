@@ -288,7 +288,7 @@ Pushing the tag triggers the [publish workflow](./.github/workflows/publish.yml)
 
 Packages are published to npm under the `@contedra` scope via GitHub Actions. Pushing a version tag (e.g., `v0.1.1`) triggers the [publish workflow](./.github/workflows/publish.yml), which builds and publishes all packages.
 
-**Requirements:** Set the `NPM_TOKEN` secret in your GitHub repository settings.
+**Requirements:** Each package must have a trusted publisher configured on npmjs.com (GitHub Actions, repository `contedra/toolkit`, workflow `publish.yml`, with `npm publish` allowed). The workflow authenticates through OIDC (`id-token: write`), so no npm token secret is needed.
 
 ## License
 
